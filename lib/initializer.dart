@@ -9,13 +9,14 @@ import 'package:rewatch/firebase_options.dart';
 //import '../firebase_options.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/domain/repositories/iauth_repository.dart';
+import 'core/services/tmdb_service.dart';
+import 'core/services/ai_recommendation_service.dart';
 
 class Initializer {
   static Future<void> init() async {
     try {
       await dotenv.load(fileName: '.env');
-    } catch (e) {
-    }
+    } catch (e) {}
 
     await GetStorage.init();
 
@@ -26,7 +27,6 @@ class Initializer {
     }
 
     await _initDependencies();
-
   }
 
   static Future<void> _initDependencies() async {
@@ -46,7 +46,8 @@ class Initializer {
         permanent: true,
       );
 
-      
+      final tmdbService = Get.put(TmdbService(), permanent: true);
+      Get.put(AiRecommendationService(tmdbService), permanent: true);
     } catch (err) {
       if (kDebugMode) {
         debugPrint('❌ Initializer: Dependencies initialization failed: $err');
@@ -54,5 +55,4 @@ class Initializer {
       throw Exception('Dependencies initialization failed: $err');
     }
   }
-  
 }
