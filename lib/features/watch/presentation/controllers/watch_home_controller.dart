@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import '../../../../core/config/app_colors.dart';
 import '../../domain/entities/watch_item.dart';
+import 'dart:math';
 import '../../domain/repositories/iwatch_items_repository.dart';
-import '../views/widgets/shuffle_result_dialog.dart';
+import 'package:rewatch/features/watch/presentation/views/shuffle_selection_view.dart';
+import 'package:rewatch/routes/app_pages.dart';
 
 /// Controller pour l'écran Home de ReWatch
 class WatchHomeController extends GetxController {
@@ -175,75 +177,52 @@ class WatchHomeController extends GetxController {
 
   /// Navigue vers l'écran d'ajout
   void navigateToAdd() {
-    Get.toNamed('/watch/add');
+    Get.toNamed(Routes.watchAdd);
   }
 
   /// Navigue vers l'écran de détail
   void navigateToDetail(String itemId) {
-    Get.toNamed('/watch/detail', arguments: itemId);
+    final item = _allItems.firstWhereOrNull((element) => element.id == itemId);
+    if (item != null) {
+      Get.toNamed(Routes.watchDetail, arguments: item);
+    } else {
+      Get.toNamed(Routes.watchDetail, arguments: itemId);
+    }
   }
 
-  /// Choisit un item au hasard
+  /// Lance le mode aléatoire
   void shuffleItems() {
-    // 1. Essayer avec les items "Planifié"
-    List<WatchItem> candidates = _allItems
-        .where((item) => item.status == WatchItemStatus.planned)
-        .toList();
-
-    // 2. Si vide, essayer "En cours"
-    if (candidates.isEmpty) {
-      candidates = _allItems
-          .where((item) => item.status == WatchItemStatus.watching)
-          .toList();
-    }
-
-    // 3. Si toujours vide, tout prendre
-    if (candidates.isEmpty) {
-      candidates = _allItems.toList();
-    }
-
-    if (candidates.isEmpty) {
+    if (filteredItems.isEmpty) {
       Get.snackbar(
-        'info'.tr,
-        'watch_noContent'.tr,
-        colorText: AppColors.kTextPrimary,
-        backgroundColor: AppColors.kSurfaceElevated,
+        'watch_error'.tr,
+        'watch_noItems'.tr,
         snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
+        backgroundColor: AppColors.kError,
+        colorText: Colors.white,
       );
       return;
     }
 
-    // 2. Choisir au hasard
-    final randomItem = (candidates..shuffle()).first;
+    final random = Random();
+    final randomItem = filteredItems[random.nextInt(filteredItems.length)];
 
-    // 3. Afficher le résultat
-    Get.dialog(
-      ShuffleResultDialog(
+    Get.to(
+      () => ShuffleSelectionView(
         item: randomItem,
         onSpinAgain: () {
           Get.back();
-          // Petit délai pour l'effet "re-spin"
-          Future.delayed(
-            const Duration(milliseconds: 200),
-            () => shuffleItems(),
-          );
+          // Small delay for effect before reopening
+          Future.delayed(const Duration(milliseconds: 200), () {
+            shuffleItems();
+          });
         },
-        onStartWatching: () async {
+        onStartWatching: () {
           Get.back();
-          // Mettre à jour le statut en "En cours"
-          final updatedItem = randomItem.copyWith(
-            status: WatchItemStatus.watching,
-          );
-          final user = _auth.currentUser;
-          if (user != null) {
-            await _repository.updateItem(user.uid, updatedItem);
-          }
-          // Aller au détail
-          navigateToDetail(randomItem.id);
+          Get.toNamed(Routes.watchDetail, arguments: randomItem);
         },
       ),
-      barrierDismissible: true,
+      transition: Transition.zoom,
+      fullscreenDialog: true,
     );
   }
 

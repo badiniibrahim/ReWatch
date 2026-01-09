@@ -18,9 +18,7 @@ class WatchBinding extends Bindings {
 
     // Home Controller
     Get.lazyPut<WatchHomeController>(
-      () => WatchHomeController(
-        repository: Get.find<IWatchItemsRepository>(),
-      ),
+      () => WatchHomeController(repository: Get.find<IWatchItemsRepository>()),
       fenix: true,
     );
   }
@@ -47,11 +45,20 @@ class WatchItemFormBinding extends Bindings {
 class WatchItemDetailBinding extends Bindings {
   @override
   void dependencies() {
-    final itemId = Get.arguments as String? ?? '';
+    final args = Get.arguments;
+    String itemId = '';
+
+    if (args is WatchItem) {
+      itemId = args.id;
+    } else if (args is String) {
+      itemId = args;
+    }
+
     Get.put<WatchItemDetailController>(
       WatchItemDetailController(
         repository: Get.find<IWatchItemsRepository>(),
         itemId: itemId,
+        initialItem: args is WatchItem ? args : null,
       ),
     );
   }
