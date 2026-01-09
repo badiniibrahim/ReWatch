@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rewatch/features/watch/presentation/views/watch_filters_view.dart';
 import 'package:get/get.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../../core/config/app_colors.dart';
 import '../../../../core/widgets/adaptive_widgets.dart';
 import '../controllers/watch_home_controller.dart';
@@ -316,9 +317,18 @@ class WatchHomeView extends GetView<WatchHomeController> {
           ),
           delegate: SliverChildBuilderDelegate((context, index) {
             final item = controller.filteredItems[index];
-            return WatchItemCard(
-              item: item,
-              onTap: () => controller.navigateToDetail(item.id),
+            return AnimationConfiguration.staggeredGrid(
+              position: index,
+              duration: const Duration(milliseconds: 375),
+              columnCount: 2,
+              child: ScaleAnimation(
+                child: FadeInAnimation(
+                  child: WatchItemCard(
+                    item: item,
+                    onTap: () => controller.navigateToDetail(item.id),
+                  ),
+                ),
+              ),
             );
           }, childCount: controller.filteredItems.length),
         ),

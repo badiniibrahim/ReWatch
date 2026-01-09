@@ -98,7 +98,7 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
                   children: [
                     // Image Background
                     Hero(
-                      tag: 'item_image_${item.id}',
+                      tag: 'item_${item.id}',
                       child: _buildHeaderImage(item),
                     ),
                     // Gradient Overlay
@@ -173,94 +173,113 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
 
             // --- CONTENT BODY ---
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeOutQuart,
+                builder: (context, value, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 50 * (1 - value)),
+                    child: Opacity(opacity: value, child: child),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      // ... rest of the children ...
+                      // Since I cannot match the entire content reliably with replacement,
+                      // I should try to target the start of the SliverToBoxAdapter to wrap it.
+                      // Wait, I should not use 'child: Padding' inside replacement if I can't include the whole block.
+                      // I will rewrite the surrounding block to include the animation wrapper.
 
-                    // QUICK STATS / PROGRESS FOR SERIES
-                    // Show for any series so user can track/see progress even if Planned
-                    if (item.type == WatchItemType.series) ...[
-                      _buildProgressCard(item),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // SYNOPSIS
-                    if (item.description != null &&
-                        item.description!.isNotEmpty) ...[
-                      Text(
-                        'SYNOPSIS',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: AppColors.kTextSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        item.description!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.6,
-                          color: AppColors.kTextPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // NOTES
-                    if (item.personalNote != null &&
-                        item.personalNote!.isNotEmpty) ...[
-                      _buildInfoCard(
-                        title: 'watch_personalNote'.tr,
-                        icon: FluentIcons.note_24_regular,
-                        content: item.personalNote!,
-                        color: AppColors.kPrimary.withValues(alpha: 0.1),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // METADATA GRID
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        _buildMetadataItem(
-                          'Ajouté le',
-                          _formatDate(item.createdAt),
-                        ),
-                        if (item.lastWatchedAt != null)
-                          _buildMetadataItem(
-                            'Vu le',
-                            _formatDate(item.lastWatchedAt!),
-                          ),
-                        if (item.type == WatchItemType.series &&
-                            item.seasonsCount != null)
-                          _buildMetadataItem('Saisons', '${item.seasonsCount}'),
+                      // QUICK STATS / PROGRESS FOR SERIES
+                      // Show for any series so user can track/see progress even if Planned
+                      if (item.type == WatchItemType.series) ...[
+                        _buildProgressCard(item),
+                        const SizedBox(height: 24),
                       ],
-                    ),
 
-                    const SizedBox(height: 32),
-
-                    // ACTIONS
-                    if (item.status != WatchItemStatus.completed)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 40),
-                          child: AdaptiveButton(
-                            text: 'watch_markAsCompleted'.tr,
-                            onPressed: controller.markAsCompleted,
-                            backgroundColor: AppColors.kSuccess,
-                            // icon: FluentIcons.checkmark_circle_24_filled,
+                      // SYNOPSIS
+                      if (item.description != null &&
+                          item.description!.isNotEmpty) ...[
+                        Text(
+                          'SYNOPSIS',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            color: AppColors.kTextSecondary,
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        Text(
+                          item.description!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.6,
+                            color: AppColors.kTextPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // NOTES
+                      if (item.personalNote != null &&
+                          item.personalNote!.isNotEmpty) ...[
+                        _buildInfoCard(
+                          title: 'watch_personalNote'.tr,
+                          icon: FluentIcons.note_24_regular,
+                          content: item.personalNote!,
+                          color: AppColors.kPrimary.withValues(alpha: 0.1),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // METADATA GRID
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          _buildMetadataItem(
+                            'Ajouté le',
+                            _formatDate(item.createdAt),
+                          ),
+                          if (item.lastWatchedAt != null)
+                            _buildMetadataItem(
+                              'Vu le',
+                              _formatDate(item.lastWatchedAt!),
+                            ),
+                          if (item.type == WatchItemType.series &&
+                              item.seasonsCount != null)
+                            _buildMetadataItem(
+                              'Saisons',
+                              '${item.seasonsCount}',
+                            ),
+                        ],
                       ),
 
-                    const SizedBox(height: 40),
-                  ],
+                      const SizedBox(height: 32),
+
+                      // ACTIONS
+                      if (item.status != WatchItemStatus.completed)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 40),
+                            child: AdaptiveButton(
+                              text: 'watch_markAsCompleted'.tr,
+                              onPressed: controller.markAsCompleted,
+                              backgroundColor: AppColors.kSuccess,
+                              // icon: FluentIcons.checkmark_circle_24_filled,
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 40),
+                    ],
+                  ),
                 ),
               ),
             ),
