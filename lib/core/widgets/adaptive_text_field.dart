@@ -60,6 +60,12 @@ class AdaptiveTextField extends StatelessWidget {
   /// Décoration personnalisée pour Material (optionnel).
   final InputDecoration? decoration;
 
+  /// Nombre maximum de lignes.
+  final int maxLines;
+
+  /// Alignement du texte.
+  final TextAlign textAlign;
+
   const AdaptiveTextField({
     super.key,
     this.controller,
@@ -79,6 +85,8 @@ class AdaptiveTextField extends StatelessWidget {
     this.fillColor,
     this.filled = true,
     this.decoration,
+    this.maxLines = 1,
+    this.textAlign = TextAlign.start,
   });
 
   @override
@@ -96,6 +104,8 @@ class AdaptiveTextField extends StatelessWidget {
         suffix: suffix,
         readOnly: readOnly,
         enabled: enabled,
+        maxLines: maxLines,
+        textAlign: textAlign,
         style:
             style ??
             TextStyle(
@@ -129,6 +139,8 @@ class AdaptiveTextField extends StatelessWidget {
       onTap: onTap,
       readOnly: readOnly,
       enabled: enabled,
+      maxLines: maxLines,
+      textAlign: textAlign,
       style:
           style ??
           TextStyle(

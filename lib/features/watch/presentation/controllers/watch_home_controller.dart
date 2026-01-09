@@ -18,12 +18,18 @@ class WatchHomeController extends GetxController {
   final RxList<WatchItem> _allItems = <WatchItem>[].obs;
   final RxList<WatchItem> filteredItems = <WatchItem>[].obs;
 
+  // Getter public pour accéder à tous les items (observable)
+  RxList<WatchItem> get allItems => _allItems;
+
   // États de recherche et filtres
   final RxString searchQuery = ''.obs;
   final Rx<WatchItemType?> selectedType = Rx<WatchItemType?>(null);
   final Rx<WatchItemStatus?> selectedStatus = Rx<WatchItemStatus?>(null);
   final RxString selectedPlatform = ''.obs;
   final RxString sortBy = 'updatedAt'.obs; // 'updatedAt' ou 'title'
+
+  // Controller pour le champ de recherche
+  final TextEditingController searchController = TextEditingController();
 
   // États de chargement et erreur
   final RxBool isLoading = false.obs;
@@ -32,6 +38,15 @@ class WatchHomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Sync searchController with searchQuery
+    searchController.text = searchQuery.value;
+    searchController.addListener(() {
+      if (searchQuery.value != searchController.text) {
+        searchQuery.value = searchController.text;
+        _applyFilters();
+      }
+    });
+
     loadItems();
   }
 
@@ -39,7 +54,7 @@ class WatchHomeController extends GetxController {
   void loadItems() {
     final user = _auth.currentUser;
     if (user == null) {
-      error.value = 'Utilisateur non connecté';
+      error.value = 'watch_userNotConnected'.tr;
       return;
     }
 
@@ -56,12 +71,15 @@ class WatchHomeController extends GetxController {
               isLoading.value = false;
             },
             onError: (e) {
-              error.value = 'Erreur lors du chargement: $e';
+              error.value = 'watch_errorLoading'.tr.replaceAll(
+                '{error}',
+                e.toString(),
+              );
               isLoading.value = false;
             },
           );
     } catch (e) {
-      error.value = 'Erreur lors du chargement: $e';
+      error.value = 'watch_errorLoading'.tr.replaceAll('{error}', e.toString());
       isLoading.value = false;
     }
   }
@@ -107,8 +125,11 @@ class WatchHomeController extends GetxController {
     filteredItems.value = items;
   }
 
-  /// Met à jour la recherche
+  /// Met à jour la recherche (legacy/direct call)
   void updateSearch(String query) {
+    if (searchController.text != query) {
+      searchController.text = query;
+    }
     searchQuery.value = query;
     _applyFilters();
   }
@@ -139,7 +160,7 @@ class WatchHomeController extends GetxController {
 
   /// Réinitialise tous les filtres
   void resetFilters() {
-    searchQuery.value = '';
+    searchController.clear(); // Will trigger listener
     selectedType.value = null;
     selectedStatus.value = null;
     selectedPlatform.value = '';
@@ -183,8 +204,8 @@ class WatchHomeController extends GetxController {
 
     if (candidates.isEmpty) {
       Get.snackbar(
-        'Oups !',
-        'Votre bibliothèque est vide. Ajoutez du contenu pour lancer le mélange !',
+        'info'.tr,
+        'watch_noContent'.tr,
         colorText: AppColors.kTextPrimary,
         backgroundColor: AppColors.kSurfaceElevated,
         snackPosition: SnackPosition.BOTTOM,
@@ -224,5 +245,11 @@ class WatchHomeController extends GetxController {
       ),
       barrierDismissible: true,
     );
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 }

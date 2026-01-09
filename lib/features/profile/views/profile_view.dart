@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import '../../../core/config/app_colors.dart';
 import '../../../core/widgets/adaptive_widgets.dart';
-import '../../../routes/app_pages.dart';
 import '../../auth/domain/entities/user.dart';
 import '../controllers/profile_controller.dart';
 import 'permission_test_view.dart';
+import 'watch_stats_view.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -15,8 +15,9 @@ class ProfileView extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      title: 'profile_settings'.tr,
-      backgroundColor: AppColors.kSurface,
+      // No standard AppBar title for a custom look
+      title: '',
+      backgroundColor: AppColors.kBackground,
       body: Obx(() {
         if (controller.currentUser.value == null) {
           return _buildNotLoggedInState(context);
@@ -32,19 +33,28 @@ class ProfileView extends GetView<ProfileController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            FluentIcons.person_24_regular,
-            size: 64,
-            color: AppColors.kTextSecondary,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'profile_not_logged_in'.tr,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(color: AppColors.kTextPrimary),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.kSurfaceElevated,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.kBorder),
+            ),
+            child: Icon(
+              FluentIcons.person_24_regular,
+              size: 48,
+              color: AppColors.kTextSecondary,
+            ),
           ),
           const SizedBox(height: 24),
+          Text(
+            'profile_not_logged_in'.tr,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppColors.kTextPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 32),
           AdaptiveButton(
             text: 'auth_signIn'.tr,
             onPressed: () {
@@ -53,7 +63,8 @@ class ProfileView extends GetView<ProfileController> {
                 message: 'auth_signInComingSoon'.tr,
               );
             },
-            backgroundColor: AppColors.kPrimarySolid,
+            backgroundColor: AppColors.kPrimary,
+            width: 200,
           ),
         ],
       ),
@@ -62,348 +73,352 @@ class ProfileView extends GetView<ProfileController> {
 
   Widget _buildProfileContent(BuildContext context) {
     final user = controller.currentUser.value!;
+    // Récupérer le WatchHomeController pour accéder aux items
+    // final watchController = Get.find<WatchHomeController>();
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(child: _buildUserSection(context, user)),
-          _buildCreditsSection(context, user),
+    return CustomScrollView(
+      slivers: [
+        // App Bar / Header Custom
+        SliverAppBar(
+          expandedHeight: 220.0,
+          floating: false,
+          pinned: true,
+          backgroundColor: AppColors.kBackground,
+          flexibleSpace: FlexibleSpaceBar(
+            background: _buildUserHeader(context, user),
+          ),
+          elevation: 0,
+        ),
 
-          const SizedBox(height: 24),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 16),
 
-          _buildAppSection(context),
+                // VIP / Credits Banner
+                _buildCreditsBanner(context, user),
 
-          const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
-          _buildSupportSection(context),
+                // Sections
+                _buildSectionHeader('profile_section_app'.tr),
+                _buildSectionContainer(
+                  items: [
+                    _SectionItem(
+                      icon: FluentIcons.data_bar_vertical_24_regular,
+                      title: 'profile_stats_title'.tr,
+                      titleColor: AppColors.kTextPrimary,
+                      iconColor: AppColors
+                          .kPrimary, // Changed from kSecondary to kPrimary (common color)
+                      onTap: () => Get.to(() => const WatchStatsView()),
+                    ),
+                    _SectionItem(
+                      icon: FluentIcons.translate_24_regular,
+                      title: 'profile_language'.tr,
+                      titleColor: AppColors.kTextPrimary,
+                      iconColor: AppColors.kPrimary,
+                      onTap: null,
+                      hasSwitch: true,
+                    ),
+                  ],
+                ),
 
-          const SizedBox(height: 24),
+                const SizedBox(height: 24),
+                _buildSectionHeader('profile_section_legal'.tr),
+                _buildSectionContainer(
+                  items: [
+                    _SectionItem(
+                      icon: FluentIcons.document_text_24_regular,
+                      title: 'profile_terms_conditions'.tr,
+                      iconColor: AppColors.kTextSecondary,
+                      titleColor: AppColors.kTextPrimary,
+                      onTap: controller.openTermsAndConditions,
+                    ),
+                    _SectionItem(
+                      icon: FluentIcons.shield_24_regular,
+                      title: 'profile_privacy_policy'.tr,
+                      iconColor: AppColors.kTextSecondary,
+                      titleColor: AppColors.kTextPrimary,
+                      onTap: controller.openPrivacyPolicy,
+                    ),
+                  ],
+                ),
 
-          _buildLegalSection(context),
+                const SizedBox(height: 24),
+                _buildSectionHeader('profile_section_account'.tr),
+                _buildSectionContainer(
+                  items: [
+                    _SectionItem(
+                      icon: FluentIcons.delete_24_regular,
+                      title: 'profile_delete_account'.tr,
+                      iconColor: AppColors.kError,
+                      titleColor: AppColors.kError,
+                      onTap: controller.deleteAccount,
+                      isDestructive: true,
+                    ),
+                  ],
+                ),
 
-          const SizedBox(height: 24),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 24),
+                  _buildSectionHeader('profile_section_debug'.tr),
+                  _buildSectionContainer(
+                    items: [
+                      _SectionItem(
+                        icon: FluentIcons.bug_24_regular,
+                        title: 'profile_test_permissions'.tr,
+                        iconColor: AppColors.kInfo,
+                        titleColor: AppColors.kTextPrimary,
+                        onTap: () {
+                          Get.to(() => const PermissionTestView());
+                        },
+                      ),
+                    ],
+                  ),
+                ],
 
-          _buildAccountSection(context),
+                const SizedBox(height: 32),
 
-          if (kDebugMode) ...[
-            const SizedBox(height: 24),
-            _buildDebugSection(context),
-          ],
+                Center(
+                  child: SizedBox(
+                    width: 200, // Fixed width for centered look
+                    child: AdaptiveButton(
+                      text: 'profile_logout'.tr,
+                      onPressed: controller.signOut,
+                      backgroundColor: AppColors.kSurfaceElevated,
+                      textColor: AppColors.kTextPrimary,
+                      height: 52,
+                    ),
+                  ),
+                ),
 
-          const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-          _buildLogoutButton(context),
+                Center(child: _buildFooter(context)),
 
-          const SizedBox(height: 24),
-
-          Center(child: _buildFooter(context)),
-
-          const SizedBox(height: 16),
-        ],
-      ),
+                const SizedBox(height: 48), // Bottom padding
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildUserSection(BuildContext context, User user) {
+  Widget _buildUserHeader(BuildContext context, User user) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      color: AppColors.kBackground, // Solid color, no gradient
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          const SizedBox(height: 40), // Safe area approx
           Container(
-            width: 80,
-            height: 80,
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.kPrimarySolid,
+              border: Border.all(
+                color: AppColors.kPrimary.withValues(alpha: 0.5),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.kPrimary.withValues(alpha: 0.2),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                ),
+              ],
             ),
-            child: Icon(
-              FluentIcons.person_24_filled,
-              size: 40,
-              color: Colors.white,
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: AppColors.kSurfaceElevated,
+              child: Text(
+                user.username.isNotEmpty ? user.username[0].toUpperCase() : '?',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.kPrimary,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
           Text(
             user.username,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
               color: AppColors.kTextPrimary,
-              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             user.email,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.kTextSecondary),
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.kTextSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCreditsSection(BuildContext context, User user) {
+  Widget _buildCreditsBanner(BuildContext context, User user) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.kPrimarySolid,
-            AppColors.kPrimarySolid.withValues(alpha: 0.8),
-          ],
-        ),
+        color: Color(0xFF1E1E1E), // Solid dark color
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.kPrimarySolid.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: AppColors.kWarning.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               FluentIcons.star_24_filled,
-              size: 24,
-              color: Colors.white,
+              color: AppColors.kWarning,
+              size: 20,
             ),
           ),
-          
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "ReWatch Premium",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  "Membre depuis 2024", // Placeholder dynamic later
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildAppSection(BuildContext context) {
-    return _buildSection(
-      context,
-      title: 'profile_section_app'.tr,
-      items: [
-       
-
-        _SectionItem(
-          icon: FluentIcons.translate_24_regular,
-          title: 'profile_language'.tr,
-          onTap: null,
-          hasSwitch: true,
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: const TextStyle(
+          color: AppColors.kTextSecondary,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildSupportSection(BuildContext context) {
-    return _buildSection(
-      context,
-      title: 'profile_section_support'.tr,
-      items: [
-        _SectionItem(
-          icon: FluentIcons.chat_24_regular,
-          title: 'profile_leave_review'.tr,
-          onTap: controller.leaveReview,
-        ),
-        _SectionItem(
-          icon: FluentIcons.bookmark_24_regular,
-          title: 'profile_how_to_save'.tr,
-          onTap: () {
-            AdaptiveSnackbar.show(
-              title: 'info'.tr,
-              message: 'profile_how_to_save'.tr,
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLegalSection(BuildContext context) {
-    return _buildSection(
-      context,
-      title: 'profile_section_legal'.tr,
-      items: [
-        _SectionItem(
-          icon: FluentIcons.info_24_regular,
-          title: 'profile_terms_conditions'.tr,
-          onTap: controller.openTermsAndConditions,
-        ),
-        _SectionItem(
-          icon: FluentIcons.shield_24_regular,
-          title: 'profile_privacy_policy'.tr,
-          onTap: controller.openPrivacyPolicy,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAccountSection(BuildContext context) {
-    return _buildSection(
-      context,
-      title: 'profile_section_account'.tr,
-      items: [
-        _SectionItem(
-          icon: FluentIcons.person_delete_24_regular,
-          title: 'profile_delete_account'.tr,
-          onTap: controller.deleteAccount,
-          isDestructive: true,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDebugSection(BuildContext context) {
-    return _buildSection(
-      context,
-      title: 'profile_section_debug'.tr,
-      items: [
-        _SectionItem(
-          icon: FluentIcons.shield_24_regular,
-          title: 'profile_test_permissions'.tr,
-          onTap: () {
-            Get.to(() => const PermissionTestView());
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSection(
-    BuildContext context, {
-    required String title,
-    required List<_SectionItem> items,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: AppColors.kTextSecondary,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColors.kCard,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.kPrimarySolid.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+  Widget _buildSectionContainer({required List<_SectionItem> items}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.kSurfaceElevated,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.kBorder.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < items.length; i++) ...[
+            _buildSectionItem(items[i]),
+            if (i < items.length - 1)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.kBorder.withValues(alpha: 0.3),
+                indent: 56,
               ),
-            ],
-          ),
-          child: Column(
-            children: [
-              for (int i = 0; i < items.length; i++) ...[
-                _buildSectionItem(context, items[i]),
-                if (i < items.length - 1)
-                  Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: AppColors.kBorder.withValues(alpha: 0.5),
-                    indent: 56,
-                  ),
-              ],
-            ],
-          ),
-        ),
-      ],
+          ],
+        ],
+      ),
     );
   }
 
-  Widget _buildSectionItem(BuildContext context, _SectionItem item) {
+  Widget _buildSectionItem(_SectionItem item) {
     return ListTile(
-      leading: Icon(
-        item.icon,
-        color: item.isDestructive ? AppColors.kError : AppColors.kTextPrimary,
-        size: 24,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: item.iconColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(item.icon, color: item.iconColor, size: 20),
       ),
       title: Text(
         item.title,
         style: TextStyle(
-          color: item.isDestructive ? AppColors.kError : AppColors.kTextPrimary,
+          color: item.titleColor,
           fontWeight: FontWeight.w500,
+          fontSize: 15,
         ),
       ),
       trailing: item.hasSwitch
-          ? Obx(
-              () => Switch(
+          ? GetX<ProfileController>(
+              // Use GetX for precise updates inside tile
+              builder: (controller) => Switch.adaptive(
                 value: controller.isFrench.value,
-                onChanged: (value) {
-                  controller.changeLanguage(value);
-                },
-                activeColor: AppColors.kPrimarySolid,
+                onChanged: (value) => controller.changeLanguage(value),
+                activeColor: AppColors.kPrimary,
               ),
             )
           : Icon(
               FluentIcons.chevron_right_24_regular,
-              color: AppColors.kTextSecondary,
+              color: AppColors.kTextTertiary,
               size: 20,
             ),
       onTap: item.onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      width: double.infinity,
-      child: AdaptiveButton(
-        text: 'profile_logout'.tr.toUpperCase(),
-        onPressed: controller.signOut,
-        backgroundColor: AppColors.kTextPrimary,
-        height: 56,
-      ),
     );
   }
 
   Widget _buildFooter(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          FluentIcons.food_24_regular,
-          size: 24,
-          color: AppColors.kTextSecondary,
-        ),
-        const SizedBox(height: 8),
-        Obx(
-          () => Text(
-            controller.appVersion.value.isNotEmpty
-                ? '${'profile_app_version_label'.tr} ${controller.appVersion.value}'
-                : 'profile_app_version'.tr,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.kTextSecondary),
+    return Obx(
+      () => Column(
+        children: [
+          Text(
+            'ReWatch',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.kTextTertiary.withValues(alpha: 0.5),
+              letterSpacing: 1,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            controller.appVersion.value.isNotEmpty
+                ? 'v${controller.appVersion.value}'
+                : 'v1.0.0',
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.kTextTertiary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -411,6 +426,8 @@ class ProfileView extends GetView<ProfileController> {
 class _SectionItem {
   final IconData icon;
   final String title;
+  final Color iconColor;
+  final Color titleColor;
   final VoidCallback? onTap;
   final bool isDestructive;
   final bool hasSwitch;
@@ -418,6 +435,8 @@ class _SectionItem {
   const _SectionItem({
     required this.icon,
     required this.title,
+    required this.iconColor,
+    required this.titleColor,
     this.onTap,
     this.isDestructive = false,
     this.hasSwitch = false,

@@ -1,149 +1,103 @@
 import 'package:flutter/material.dart';
 import '../config/app_colors.dart';
 
-/// Helper pour afficher les logos des plateformes de streaming
+/// Helper pour afficher les logos des plateformes de streaming via Assets
 class PlatformLogoHelper {
   PlatformLogoHelper._();
+
+  static const Map<String, String> _platformAssets = {
+    'netflix': 'assets/images/logo_netflix.png',
+    'disney+': 'assets/images/disneyplus.png',
+    'amazon prime video': 'assets/images/amazon-prime-video.png',
+    'prime video': 'assets/images/amazon-prime-video.png',
+    'apple tv+': 'assets/images/apple-tv-plus.jpg',
+    'apple tv': 'assets/images/apple-tv-plus.jpg',
+    'hbo max': 'assets/images/hbo-max.png',
+    'hulu': 'assets/images/hulu.png',
+    'canal+': 'assets/images/canal-logo.png',
+    'mycanal': 'assets/images/canal-logo.png',
+    'paramount+': 'assets/images/paramount-logo.png',
+    'youtube': 'assets/images/youtube-logo.png',
+    'crunchyroll': 'assets/images/crunchyroll.png',
+  };
 
   /// Retourne le widget logo pour une plateforme donnée
   static Widget getLogo(String platform, {double size = 32}) {
     final platformKey = platform.toLowerCase();
 
+    // Si la plateforme a un logo asset
+    if (_platformAssets.containsKey(platformKey)) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(
+            size * 0.2,
+          ), // Rounded corners proportional to size
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(size * 0.2),
+          child: Image.asset(
+            _platformAssets[platformKey]!,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildFallbackIcon(platformKey, size);
+            },
+          ),
+        ),
+      );
+    }
+
+    // Fallback pour "Autre..." ou non reconnu
+    return _buildFallbackIcon(platformKey, size);
+  }
+
+  static Widget _buildFallbackIcon(String platform, double size) {
+    // Cas spécial pour l'option "Autre..." dans les listes
+    if (platform == 'autre...') {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: AppColors.kSurfaceElevated,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.kBorder),
+        ),
+        child: Icon(
+          Icons.add,
+          size: size * 0.6,
+          color: AppColors.kTextSecondary,
+        ),
+      );
+    }
+
+    // Défaut générique
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: _getGradient(platformKey),
-        borderRadius: BorderRadius.circular(6),
-        boxShadow: [
-          BoxShadow(
-            color: _getColor(platformKey).withOpacity(0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: AppColors.kSurfaceVariant,
+        borderRadius: BorderRadius.circular(size * 0.2),
       ),
-      child: Center(child: _getIcon(platformKey, size)),
+      child: Center(
+        child: Text(
+          platform.isNotEmpty ? platform[0].toUpperCase() : '?',
+          style: TextStyle(
+            color: AppColors.kTextSecondary,
+            fontSize: size * 0.5,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
-  }
-
-  static LinearGradient _getGradient(String platform) {
-    final color = _getColor(platform);
-    return LinearGradient(
-      colors: [color, color.withOpacity(0.8)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-  }
-
-  static Color _getColor(String platform) {
-    switch (platform) {
-      case 'netflix':
-        return const Color(0xFFE50914);
-      case 'disney+':
-        return const Color(0xFF113CCF);
-      case 'amazon prime video':
-        return const Color(0xFF00A8E1);
-      case 'apple tv+':
-        return const Color(0xFF000000);
-      case 'hbo max':
-        return const Color(0xFF7F3FF2);
-      case 'hulu':
-        return const Color(0xFF1CE783);
-      case 'canal+':
-        return const Color(0xFF000000);
-      case 'paramount+':
-        return const Color(0xFF0064FF);
-      case 'youtube':
-        return const Color(0xFFFF0000);
-      case 'crunchyroll':
-        return const Color(0xFFF47521);
-      default:
-        return AppColors.kSurfaceVariant;
-    }
-  }
-
-  static Widget _getIcon(String platform, double size) {
-    final iconSize = size * 0.55;
-    final textSize = size * 0.35;
-
-    switch (platform) {
-      case 'netflix':
-        return Text(
-          'N',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: textSize * 1.2,
-            fontWeight: FontWeight.w900,
-            fontFamily: 'Arial',
-          ),
-        );
-      case 'disney+':
-        return Text(
-          'D+',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: textSize,
-            fontWeight: FontWeight.bold,
-          ),
-        );
-      case 'amazon prime video':
-        return Icon(Icons.play_arrow, size: iconSize, color: Colors.white);
-      case 'apple tv+':
-        return Icon(Icons.apple, size: iconSize, color: Colors.white);
-      case 'hbo max':
-        return Text(
-          'HBO',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: textSize * 0.9,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
-          ),
-        );
-      case 'hulu':
-        return Text(
-          'hulu',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: textSize * 0.85,
-            fontWeight: FontWeight.w900,
-          ),
-        );
-      case 'canal+':
-        return Text(
-          'C+',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: textSize,
-            fontWeight: FontWeight.bold,
-          ),
-        );
-      case 'paramount+':
-        return Icon(Icons.star, size: iconSize, color: Colors.white);
-      case 'youtube':
-        return Icon(Icons.play_arrow, size: iconSize, color: Colors.white);
-      case 'crunchyroll':
-        return Text(
-          'CR',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: textSize,
-            fontWeight: FontWeight.bold,
-          ),
-        );
-      case 'autre...':
-        return Icon(
-          Icons.add_circle_outline,
-          size: iconSize,
-          color: AppColors.kTextSecondary,
-        );
-      default:
-        return Icon(
-          Icons.play_circle_outline,
-          size: iconSize,
-          color: AppColors.kTextSecondary,
-        );
-    }
   }
 }

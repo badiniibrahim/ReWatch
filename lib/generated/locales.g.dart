@@ -208,9 +208,24 @@ class LocaleKeys {
   static const profile_section_account = 'profile_section_account';
   static const profile_delete_account = 'profile_delete_account';
   static const profile_logout = 'profile_logout';
+  static const profile_logout_confirm = 'profile_logout_confirm';
   static const profile_app_version = 'profile_app_version';
   static const profile_app_version_label = 'profile_app_version_label';
+  static const profile_stats_title = 'profile_stats_title';
+  static const profile_stats_total = 'profile_stats_total';
+  static const profile_stats_watching = 'profile_stats_watching';
+  static const profile_stats_completed = 'profile_stats_completed';
+  static const profile_stats_planned = 'profile_stats_planned';
+  static const profile_stats_favorite_platform =
+      'profile_stats_favorite_platform';
+  static const profile_stats_breakdown = 'profile_stats_breakdown';
+  static const profile_stats_items_tracked = 'profile_stats_items_tracked';
+  static const profile_stats_top_platforms = 'profile_stats_top_platforms';
   static const info = 'info';
+  static const auth_deleteAccountTitle = 'auth_deleteAccountTitle';
+  static const auth_deleteAccountWarning = 'auth_deleteAccountWarning';
+  static const auth_deleteAccountConfirm = 'auth_deleteAccountConfirm';
+  static const auth_deleteAccount = 'auth_deleteAccount';
 }
 
 class Locales {
@@ -412,9 +427,25 @@ class Locales {
     'profile_section_account': 'ACCOUNT',
     'profile_delete_account': 'Delete account',
     'profile_logout': 'Logout',
+    'profile_logout_confirm': 'Are you sure you want to logout?',
     'profile_app_version': 'Version',
     'profile_app_version_label': 'Version',
+    'profile_stats_title': 'Statistics',
+    'profile_stats_total': 'Total',
+    'profile_stats_watching': 'Watching',
+    'profile_stats_completed': 'Completed',
+    'profile_stats_planned': 'Planned',
+    'profile_stats_favorite_platform': 'Favorite platform',
+    'profile_stats_breakdown': 'BREAKDOWN',
+    'profile_stats_items_tracked': 'items tracked',
+    'profile_stats_top_platforms': 'TOP PLATFORMS',
     'info': 'Info',
+    'auth_deleteAccountTitle': 'Delete account',
+    'auth_deleteAccountWarning':
+        'This action is irreversible. All your data will be permanently deleted.',
+    'auth_deleteAccountConfirm':
+        'Are you really sure you want to delete your account?',
+    'auth_deleteAccount': 'Delete',
   };
   static const fr = {
     'onboarding_skip': 'Passer',
@@ -617,8 +648,24 @@ class Locales {
     'profile_section_account': 'COMPTE',
     'profile_delete_account': 'Supprimer le compte',
     'profile_logout': 'Déconnexion',
+    'profile_logout_confirm': 'Êtes-vous sûr de vouloir vous déconnecter ?',
     'profile_app_version': 'Version',
     'profile_app_version_label': 'Version',
+    'profile_stats_title': 'Statistiques',
+    'profile_stats_total': 'Total',
+    'profile_stats_watching': 'En cours',
+    'profile_stats_completed': 'Terminés',
+    'profile_stats_planned': 'Prévus',
+    'profile_stats_favorite_platform': 'Plateforme favorite',
+    'profile_stats_breakdown': 'DÉTAILS',
+    'profile_stats_items_tracked': 'éléments suivis',
+    'profile_stats_top_platforms': 'TOP PLATEFORMES',
     'info': 'Info',
+    'auth_deleteAccountTitle': 'Supprimer le compte',
+    'auth_deleteAccountWarning':
+        'Cette action est irréversible. Toutes vos données seront définitivement supprimées.',
+    'auth_deleteAccountConfirm':
+        'Êtes-vous vraiment sûr de vouloir supprimer votre compte ?',
+    'auth_deleteAccount': 'Supprimer',
   };
 }

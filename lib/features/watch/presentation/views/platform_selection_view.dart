@@ -5,14 +5,13 @@ import '../../../../core/widgets/adaptive_scaffold.dart';
 import '../../../../core/widgets/platform_logo_helper.dart';
 import '../controllers/watch_item_form_controller.dart';
 
-/// Vue pour sélectionner une plateforme
 class PlatformSelectionView extends StatelessWidget {
   const PlatformSelectionView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<WatchItemFormController>();
-    
+
     return AdaptiveScaffold(
       backgroundColor: AppColors.kSurface,
       appBar: AppBar(
@@ -31,36 +30,37 @@ class PlatformSelectionView extends StatelessWidget {
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: WatchItemFormController.platforms.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final platform = WatchItemFormController.platforms[index];
-          return _buildPlatformTile(platform, controller);
+          return _buildPlatformCard(context, platform, controller);
         },
       ),
     );
   }
 
-  Widget _buildPlatformTile(
+  Widget _buildPlatformCard(
+    BuildContext context,
     String platform,
     WatchItemFormController controller,
   ) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.kCard,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.kBorder, width: 1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.kBorder),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           onTap: () {
             if (platform == 'Autre...') {
               Get.back();
@@ -74,18 +74,21 @@ class PlatformSelectionView extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                PlatformLogoHelper.getLogo(platform, size: 40),
+                // Logo
+                PlatformLogoHelper.getLogo(platform, size: 48),
                 const SizedBox(width: 16),
+                // Nom
                 Expanded(
                   child: Text(
                     platform,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: AppColors.kTextPrimary,
                     ),
                   ),
                 ),
+                // Icône de sélection
                 const Icon(
                   Icons.arrow_forward_ios,
                   size: 16,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import '../../../../core/config/app_colors.dart';
 import '../../../../core/widgets/adaptive_widgets.dart';
 import '../controllers/watch_home_controller.dart';
@@ -13,183 +14,262 @@ class WatchHomeView extends GetView<WatchHomeController> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      backgroundColor: AppColors.kSurface,
-      appBar: AppBar(
-        title: const Text(
-          'ReWatch',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppColors.kTextPrimary,
-          ),
-        ),
-        backgroundColor: AppColors.kSurface,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: AppColors.kTextPrimary),
-            onPressed: () => _showFilterBottomSheet(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add, color: AppColors.kTextPrimary),
-            onPressed: controller.navigateToAdd,
-          ),
+      backgroundColor: AppColors.kBackground,
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(context),
+          _buildSearchBarSliver(),
+          _buildContentSliver(),
         ],
       ),
-      body: Column(
-        children: [
-          // Barre de recherche
-          _buildSearchBar(),
-          // Liste des items
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(
-                  child: CircularProgressIndicator(color: AppColors.kPrimary),
-                );
-              }
-
-              if (controller.error.value.isNotEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        controller.error.value,
-                        style: const TextStyle(color: AppColors.kError),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => controller.loadItems(),
-                        child: Text('common_retry'.tr),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              if (controller.filteredItems.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Image d'état vide générée par IA
-                      if (controller.searchQuery.value.isEmpty &&
-                          controller.selectedType.value == null &&
-                          controller.selectedStatus.value == null &&
-                          controller.selectedPlatform.value.isEmpty)
-                        Image.asset(
-                          'assets/images/empty_library.png',
-                          width: 250,
-                          height: 250,
-                        )
-                      else
-                        Icon(
-                          Icons.movie_outlined,
-                          size: 64,
-                          color: AppColors.kTextSecondary,
-                        ),
-                      const SizedBox(height: 16),
-                      Text(
-                        controller.searchQuery.value.isNotEmpty ||
-                                controller.selectedType.value != null ||
-                                controller.selectedStatus.value != null ||
-                                controller.selectedPlatform.value.isNotEmpty
-                            ? 'watch_noResults'.tr
-                            : 'watch_noContent'.tr,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: AppColors.kTextSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      // Bouton d'ajout visible si liste vide (pas de filtres)
-                      if (controller.searchQuery.value.isEmpty &&
-                          controller.selectedType.value == null &&
-                          controller.selectedStatus.value == null &&
-                          controller.selectedPlatform.value.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: ElevatedButton(
-                            onPressed: controller.navigateToAdd,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.kPrimary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text("Ajouter mon premier contenu"),
-                          ),
-                        ),
-
-                      if (controller.searchQuery.value.isNotEmpty ||
-                          controller.selectedType.value != null ||
-                          controller.selectedStatus.value != null ||
-                          controller.selectedPlatform.value.isNotEmpty)
-                        TextButton(
-                          onPressed: controller.resetFilters,
-                          child: Text('watch_resetFiltersButton'.tr),
-                        ),
-                    ],
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: controller.filteredItems.length,
-                itemBuilder: (context, index) {
-                  final item = controller.filteredItems[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: WatchItemCard(
-                      item: item,
-                      onTap: () => controller.navigateToDetail(item.id),
-                    ),
-                  );
-                },
-              );
-            }),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: controller.shuffleItems,
         backgroundColor: AppColors.kPrimary,
-        child: const Icon(Icons.auto_awesome, color: Colors.white),
+        icon: const Icon(FluentIcons.sparkle_24_filled, color: Colors.white),
+        label: Text(
+          "Aléatoire",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: AppColors.kSurface,
-      child: AdaptiveTextField(
-        controller: TextEditingController(text: controller.searchQuery.value)
-          ..selection = TextSelection.collapsed(
-            offset: controller.searchQuery.value.length,
+  Widget _buildSliverAppBar(BuildContext context) {
+    return SliverAppBar(
+      expandedHeight: 120.0,
+      floating: true,
+      pinned: true,
+      backgroundColor: AppColors.kBackground,
+      elevation: 0,
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        title: Text(
+          'ReWatch',
+          style: TextStyle(
+            color: AppColors.kTextPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            letterSpacing: -0.5,
           ),
-        placeholder: 'watch_searchPlaceholder'.tr,
-        hintText: 'watch_searchPlaceholder'.tr,
-        prefix: const Icon(Icons.search, color: AppColors.kTextSecondary),
-        onChanged: controller.updateSearch,
+        ),
+        centerTitle: false,
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: IconButton(
+            icon: const Icon(
+              FluentIcons.filter_24_regular,
+              color: AppColors.kTextPrimary,
+            ),
+            onPressed: () => _showFilterBottomSheet(context),
+            tooltip: 'watch_filters'.tr,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: IconButton(
+            icon: const Icon(
+              FluentIcons.add_circle_24_filled,
+              color: AppColors.kPrimary,
+              size: 28,
+            ),
+            onPressed: controller.navigateToAdd,
+            tooltip: 'common_add'.tr,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBarSliver() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.kSurfaceElevated,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.kBorder.withValues(alpha: 0.5)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: AdaptiveTextField(
+            controller: controller.searchController,
+            placeholder: 'watch_searchPlaceholder'.tr,
+            hintText: 'watch_searchPlaceholder'.tr,
+            prefix: const Icon(
+              FluentIcons.search_24_regular,
+              color: AppColors.kTextSecondary,
+            ),
+            onChanged: (_) {}, // Géré par le listener du controller
+          ),
+        ),
       ),
     );
+  }
+
+  Widget _buildContentSliver() {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const SliverFillRemaining(
+          child: Center(
+            child: CircularProgressIndicator(color: AppColors.kPrimary),
+          ),
+        );
+      }
+
+      if (controller.error.value.isNotEmpty) {
+        return SliverFillRemaining(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  FluentIcons.error_circle_24_regular,
+                  size: 48,
+                  color: AppColors.kError,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  controller.error.value,
+                  style: const TextStyle(color: AppColors.kError),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                AdaptiveButton(
+                  text: 'common_retry'.tr,
+                  onPressed: () => controller.loadItems(),
+                  backgroundColor: AppColors.kSurfaceElevated,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      if (controller.filteredItems.isEmpty) {
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Image d'état vide
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.kSurfaceElevated,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      FluentIcons.movies_and_tv_24_regular,
+                      size: 64,
+                      color: AppColors.kTextSecondary.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    controller.searchQuery.value.isNotEmpty ||
+                            controller.selectedType.value != null ||
+                            controller.selectedStatus.value != null ||
+                            controller.selectedPlatform.value.isNotEmpty
+                        ? 'watch_noResults'.tr
+                        : 'watch_noContent'.tr,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.kTextPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    controller.searchQuery.value.isNotEmpty ||
+                            controller.selectedType.value != null ||
+                            controller.selectedStatus.value != null ||
+                            controller.selectedPlatform.value.isNotEmpty
+                        ? 'watch_tmdbNoResultsHint'.tr
+                        : "Commencez par ajouter une série ou un film à votre liste.",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.kTextSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  if (controller.searchQuery.value.isEmpty &&
+                      controller.selectedType.value == null &&
+                      controller.selectedStatus.value == null &&
+                      controller.selectedPlatform.value.isEmpty)
+                    AdaptiveButton(
+                      text: "Ajouter un contenu",
+                      onPressed: controller.navigateToAdd,
+                      backgroundColor: AppColors.kPrimary,
+                      width: 200,
+                    ),
+
+                  if (controller.searchQuery.value.isNotEmpty ||
+                      controller.selectedType.value != null ||
+                      controller.selectedStatus.value != null ||
+                      controller.selectedPlatform.value.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: controller.resetFilters,
+                      icon: const Icon(
+                        FluentIcons.dismiss_circle_24_regular,
+                        color: AppColors.kPrimary,
+                      ),
+                      label: Text(
+                        'watch_resetFiltersButton'.tr,
+                        style: const TextStyle(color: AppColors.kPrimary),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      return SliverPadding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio:
+                0.65, // Aspect ratio standard for poster cards + text
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final item = controller.filteredItems[index];
+            return WatchItemCard(
+              item: item,
+              onTap: () => controller.navigateToDetail(item.id),
+            );
+          }, childCount: controller.filteredItems.length),
+        ),
+      );
+    });
   }
 
   void _showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.kSurface,
+      backgroundColor: AppColors.kSurfaceElevated,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) => FilterBottomSheet(controller: controller),
     );

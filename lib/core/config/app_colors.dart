@@ -101,4 +101,8 @@ class AppColors {
   static const Color kStatusWatching = kInfo;
   static const Color kStatusCompleted = kSuccess;
   static const Color kStatusPlanned = kWarning;
+
+  // ========== STATS GRADIENT ==========
+  static const Color kStatsGradientStart = Color(0xFF1A1A2E);
+  static const Color kStatsGradientEnd = Color(0xFF16213E);
 }

@@ -194,7 +194,21 @@
   "profile_section_account": "ACCOUNT",
   "profile_delete_account": "Delete account",
   "profile_logout": "Logout",
+  "profile_logout_confirm": "Are you sure you want to logout?",
   "profile_app_version": "Version",
   "profile_app_version_label": "Version",
-  "info": "Info"
+  "profile_stats_title": "Statistics",
+  "profile_stats_total": "Total",
+  "profile_stats_watching": "Watching",
+  "profile_stats_completed": "Completed",
+  "profile_stats_planned": "Planned",
+  "profile_stats_favorite_platform": "Favorite platform",
+  "profile_stats_breakdown": "BREAKDOWN",
+  "profile_stats_items_tracked": "items tracked",
+  "profile_stats_top_platforms": "TOP PLATFORMS",
+  "info": "Info",
+  "auth_deleteAccountTitle": "Delete account",
+  "auth_deleteAccountWarning": "This action is irreversible. All your data will be permanently deleted.",
+  "auth_deleteAccountConfirm": "Are you really sure you want to delete your account?",
+  "auth_deleteAccount": "Delete"
 }
