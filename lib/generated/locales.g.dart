@@ -162,8 +162,10 @@ class LocaleKeys {
   static const watch_formPersonalNote = 'watch_formPersonalNote';
   static const watch_formPersonalNotePlaceholder =
       'watch_formPersonalNotePlaceholder';
+  static const watch_formImage = 'watch_formImage';
   static const watch_formImageUrl = 'watch_formImageUrl';
   static const watch_formImageUrlPlaceholder = 'watch_formImageUrlPlaceholder';
+  static const watch_deleteImage = 'watch_deleteImage';
   static const watch_searchPlaceholder = 'watch_searchPlaceholder';
   static const watch_noResults = 'watch_noResults';
   static const watch_noContent = 'watch_noContent';
@@ -174,6 +176,25 @@ class LocaleKeys {
   static const watch_errorDeleting = 'watch_errorDeleting';
   static const watch_deleteConfirmTitle = 'watch_deleteConfirmTitle';
   static const watch_deleteConfirmMessage = 'watch_deleteConfirmMessage';
+  static const watch_tmdbSearchTitle = 'watch_tmdbSearchTitle';
+  static const watch_tmdbSearchPlaceholder = 'watch_tmdbSearchPlaceholder';
+  static const watch_tmdbSearchEmpty = 'watch_tmdbSearchEmpty';
+  static const watch_tmdbSearchEmptyHint = 'watch_tmdbSearchEmptyHint';
+  static const watch_tmdbNoResults = 'watch_tmdbNoResults';
+  static const watch_tmdbNoResultsHint = 'watch_tmdbNoResultsHint';
+  static const watch_tmdbNoDescription = 'watch_tmdbNoDescription';
+  static const watch_platformSelectionTitle = 'watch_platformSelectionTitle';
+  static const watch_platformOther = 'watch_platformOther';
+  static const watch_platformOtherName = 'watch_platformOtherName';
+  static const watch_platformOtherNamePlaceholder =
+      'watch_platformOtherNamePlaceholder';
+  static const watch_validate = 'watch_validate';
+  static const watch_titleRequired = 'watch_titleRequired';
+  static const watch_platformRequired = 'watch_platformRequired';
+  static const watch_imageUploadFailed = 'watch_imageUploadFailed';
+  static const watch_saveError = 'watch_saveError';
+  static const watch_fillWithTmdb = 'watch_fillWithTmdb';
+  static const watch_selectImage = 'watch_selectImage';
   static const profile_settings = 'profile_settings';
   static const profile_not_logged_in = 'profile_not_logged_in';
   static const profile_section_app = 'profile_section_app';
@@ -187,9 +208,24 @@ class LocaleKeys {
   static const profile_section_account = 'profile_section_account';
   static const profile_delete_account = 'profile_delete_account';
   static const profile_logout = 'profile_logout';
+  static const profile_logout_confirm = 'profile_logout_confirm';
   static const profile_app_version = 'profile_app_version';
   static const profile_app_version_label = 'profile_app_version_label';
+  static const profile_stats_title = 'profile_stats_title';
+  static const profile_stats_total = 'profile_stats_total';
+  static const profile_stats_watching = 'profile_stats_watching';
+  static const profile_stats_completed = 'profile_stats_completed';
+  static const profile_stats_planned = 'profile_stats_planned';
+  static const profile_stats_favorite_platform =
+      'profile_stats_favorite_platform';
+  static const profile_stats_breakdown = 'profile_stats_breakdown';
+  static const profile_stats_items_tracked = 'profile_stats_items_tracked';
+  static const profile_stats_top_platforms = 'profile_stats_top_platforms';
   static const info = 'info';
+  static const auth_deleteAccountTitle = 'auth_deleteAccountTitle';
+  static const auth_deleteAccountWarning = 'auth_deleteAccountWarning';
+  static const auth_deleteAccountConfirm = 'auth_deleteAccountConfirm';
+  static const auth_deleteAccount = 'auth_deleteAccount';
 }
 
 class Locales {
@@ -346,8 +382,10 @@ class Locales {
     'watch_formDescriptionPlaceholder': 'Description (optional)',
     'watch_formPersonalNote': 'Personal note',
     'watch_formPersonalNotePlaceholder': 'Your summary or note (optional)',
+    'watch_formImage': 'Image',
     'watch_formImageUrl': 'Image URL',
     'watch_formImageUrlPlaceholder': 'Image URL (optional)',
+    'watch_deleteImage': 'Delete image',
     'watch_searchPlaceholder': 'Search by title...',
     'watch_noResults': 'No results',
     'watch_noContent': 'No content added',
@@ -358,6 +396,24 @@ class Locales {
     'watch_errorDeleting': 'Error deleting: {error}',
     'watch_deleteConfirmTitle': 'Delete',
     'watch_deleteConfirmMessage': 'Are you sure you want to delete this item?',
+    'watch_tmdbSearchTitle': 'TMDB Search',
+    'watch_tmdbSearchPlaceholder': 'Search for a movie or series...',
+    'watch_tmdbSearchEmpty': 'Search for a movie or series',
+    'watch_tmdbSearchEmptyHint': 'Type the title and press Enter',
+    'watch_tmdbNoResults': 'No results found',
+    'watch_tmdbNoResultsHint': 'Try with another title',
+    'watch_tmdbNoDescription': 'No description available',
+    'watch_platformSelectionTitle': 'Choose a platform',
+    'watch_platformOther': 'Other platform',
+    'watch_platformOtherName': 'Platform name',
+    'watch_platformOtherNamePlaceholder': 'Platform name',
+    'watch_validate': 'Validate',
+    'watch_titleRequired': 'Title is required',
+    'watch_platformRequired': 'Platform is required',
+    'watch_imageUploadFailed': 'Image upload failed',
+    'watch_saveError': 'Error saving: {error}',
+    'watch_fillWithTmdb': 'Fill with TMDB',
+    'watch_selectImage': 'Select an image',
     'profile_settings': 'Settings',
     'profile_not_logged_in': 'Not logged in',
     'profile_section_app': 'APP',
@@ -371,9 +427,25 @@ class Locales {
     'profile_section_account': 'ACCOUNT',
     'profile_delete_account': 'Delete account',
     'profile_logout': 'Logout',
+    'profile_logout_confirm': 'Are you sure you want to logout?',
     'profile_app_version': 'Version',
     'profile_app_version_label': 'Version',
+    'profile_stats_title': 'Statistics',
+    'profile_stats_total': 'Total',
+    'profile_stats_watching': 'Watching',
+    'profile_stats_completed': 'Completed',
+    'profile_stats_planned': 'Planned',
+    'profile_stats_favorite_platform': 'Favorite platform',
+    'profile_stats_breakdown': 'BREAKDOWN',
+    'profile_stats_items_tracked': 'items tracked',
+    'profile_stats_top_platforms': 'TOP PLATFORMS',
     'info': 'Info',
+    'auth_deleteAccountTitle': 'Delete account',
+    'auth_deleteAccountWarning':
+        'This action is irreversible. All your data will be permanently deleted.',
+    'auth_deleteAccountConfirm':
+        'Are you really sure you want to delete your account?',
+    'auth_deleteAccount': 'Delete',
   };
   static const fr = {
     'onboarding_skip': 'Passer',
@@ -530,8 +602,10 @@ class Locales {
     'watch_formDescriptionPlaceholder': 'Description (optionnel)',
     'watch_formPersonalNote': 'Note personnelle',
     'watch_formPersonalNotePlaceholder': 'Votre résumé ou note (optionnel)',
+    'watch_formImage': 'Image',
     'watch_formImageUrl': 'URL de l\'image',
     'watch_formImageUrlPlaceholder': 'URL de l\'image (optionnel)',
+    'watch_deleteImage': 'Supprimer l\'image',
     'watch_searchPlaceholder': 'Rechercher par titre...',
     'watch_noResults': 'Aucun résultat',
     'watch_noContent': 'Aucun contenu ajouté',
@@ -543,6 +617,24 @@ class Locales {
     'watch_deleteConfirmTitle': 'Supprimer',
     'watch_deleteConfirmMessage':
         'Êtes-vous sûr de vouloir supprimer cet élément ?',
+    'watch_tmdbSearchTitle': 'Recherche TMDB',
+    'watch_tmdbSearchPlaceholder': 'Rechercher un film ou une série...',
+    'watch_tmdbSearchEmpty': 'Recherchez un film ou une série',
+    'watch_tmdbSearchEmptyHint': 'Tapez le titre et appuyez sur Entrée',
+    'watch_tmdbNoResults': 'Aucun résultat trouvé',
+    'watch_tmdbNoResultsHint': 'Essayez avec un autre titre',
+    'watch_tmdbNoDescription': 'Aucune description disponible',
+    'watch_platformSelectionTitle': 'Choisir une plateforme',
+    'watch_platformOther': 'Autre plateforme',
+    'watch_platformOtherName': 'Nom de la plateforme',
+    'watch_platformOtherNamePlaceholder': 'Nom de la plateforme',
+    'watch_validate': 'Valider',
+    'watch_titleRequired': 'Le titre est obligatoire',
+    'watch_platformRequired': 'La plateforme est obligatoire',
+    'watch_imageUploadFailed': 'Échec de l\'upload de l\'image',
+    'watch_saveError': 'Erreur lors de la sauvegarde: {error}',
+    'watch_fillWithTmdb': 'Remplir avec TMDB',
+    'watch_selectImage': 'Choisir une image',
     'profile_settings': 'Paramètres',
     'profile_not_logged_in': 'Non connecté',
     'profile_section_app': 'APPLICATION',
@@ -556,8 +648,24 @@ class Locales {
     'profile_section_account': 'COMPTE',
     'profile_delete_account': 'Supprimer le compte',
     'profile_logout': 'Déconnexion',
+    'profile_logout_confirm': 'Êtes-vous sûr de vouloir vous déconnecter ?',
     'profile_app_version': 'Version',
     'profile_app_version_label': 'Version',
+    'profile_stats_title': 'Statistiques',
+    'profile_stats_total': 'Total',
+    'profile_stats_watching': 'En cours',
+    'profile_stats_completed': 'Terminés',
+    'profile_stats_planned': 'Prévus',
+    'profile_stats_favorite_platform': 'Plateforme favorite',
+    'profile_stats_breakdown': 'DÉTAILS',
+    'profile_stats_items_tracked': 'éléments suivis',
+    'profile_stats_top_platforms': 'TOP PLATEFORMES',
     'info': 'Info',
+    'auth_deleteAccountTitle': 'Supprimer le compte',
+    'auth_deleteAccountWarning':
+        'Cette action est irréversible. Toutes vos données seront définitivement supprimées.',
+    'auth_deleteAccountConfirm':
+        'Êtes-vous vraiment sûr de vouloir supprimer votre compte ?',
+    'auth_deleteAccount': 'Supprimer',
   };
 }

@@ -13,9 +13,11 @@ class WatchItemDetailController extends GetxController {
   WatchItemDetailController({
     required IWatchItemsRepository repository,
     required this.itemId,
-  }) : _repository = repository;
+    WatchItem? initialItem,
+  }) : _repository = repository,
+       item = Rx<WatchItem?>(initialItem);
 
-  final Rx<WatchItem?> item = Rx<WatchItem?>(null);
+  final Rx<WatchItem?> item;
   final RxBool isLoading = false.obs;
   final RxBool isDeleting = false.obs;
   final RxString error = ''.obs;
@@ -37,22 +39,27 @@ class WatchItemDetailController extends GetxController {
     isLoading.value = true;
     error.value = '';
 
-    _repository.streamItems(user.uid).listen(
-      (items) {
-        try {
-          final foundItem = items.firstWhere((i) => i.id == itemId);
-          item.value = foundItem;
-          isLoading.value = false;
-        } catch (e) {
-          error.value = 'watch_itemNotFound'.tr;
-          isLoading.value = false;
-        }
-      },
-      onError: (e) {
-        error.value = 'watch_errorLoading'.tr.replaceAll('{error}', e.toString());
-        isLoading.value = false;
-      },
-    );
+    _repository
+        .streamItems(user.uid)
+        .listen(
+          (items) {
+            try {
+              final foundItem = items.firstWhere((i) => i.id == itemId);
+              item.value = foundItem;
+              isLoading.value = false;
+            } catch (e) {
+              error.value = 'watch_itemNotFound'.tr;
+              isLoading.value = false;
+            }
+          },
+          onError: (e) {
+            error.value = 'watch_errorLoading'.tr.replaceAll(
+              '{error}',
+              e.toString(),
+            );
+            isLoading.value = false;
+          },
+        );
   }
 
   /// Incrémente l'épisode actuel de +1
@@ -75,7 +82,10 @@ class WatchItemDetailController extends GetxController {
       );
       await _repository.updateItem(user.uid, updatedItem);
     } catch (e) {
-      error.value = 'watch_errorUpdating'.tr.replaceAll('{error}', e.toString());
+      error.value = 'watch_errorUpdating'.tr.replaceAll(
+        '{error}',
+        e.toString(),
+      );
     }
   }
 
@@ -100,7 +110,10 @@ class WatchItemDetailController extends GetxController {
       );
       await _repository.updateItem(user.uid, updatedItem);
     } catch (e) {
-      error.value = 'watch_errorUpdating'.tr.replaceAll('{error}', e.toString());
+      error.value = 'watch_errorUpdating'.tr.replaceAll(
+        '{error}',
+        e.toString(),
+      );
     }
   }
 
@@ -120,7 +133,10 @@ class WatchItemDetailController extends GetxController {
       await _repository.updateItem(user.uid, updatedItem);
       Get.back();
     } catch (e) {
-      error.value = 'watch_errorUpdating'.tr.replaceAll('{error}', e.toString());
+      error.value = 'watch_errorUpdating'.tr.replaceAll(
+        '{error}',
+        e.toString(),
+      );
     }
   }
 
@@ -132,9 +148,7 @@ class WatchItemDetailController extends GetxController {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
         title: Text('watch_deleteConfirmTitle'.tr),
-        content: Text(
-          'watch_deleteConfirmMessage'.tr,
-        ),
+        content: Text('watch_deleteConfirmMessage'.tr),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
@@ -162,7 +176,10 @@ class WatchItemDetailController extends GetxController {
       Get.back();
       Get.back(); // Retour à la liste
     } catch (e) {
-      error.value = 'watch_errorDeleting'.tr.replaceAll('{error}', e.toString());
+      error.value = 'watch_errorDeleting'.tr.replaceAll(
+        '{error}',
+        e.toString(),
+      );
       isDeleting.value = false;
     }
   }

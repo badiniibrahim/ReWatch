@@ -1,7 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import '../../../../core/config/app_colors.dart';
 import '../../domain/entities/watch_item.dart';
+import 'dart:math';
 import '../../domain/repositories/iwatch_items_repository.dart';
+import 'package:rewatch/features/watch/presentation/views/shuffle_selection_view.dart';
+import 'package:rewatch/routes/app_pages.dart';
 
 /// Controller pour l'écran Home de ReWatch
 class WatchHomeController extends GetxController {
@@ -9,11 +14,14 @@ class WatchHomeController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   WatchHomeController({required IWatchItemsRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   // Liste filtrée et triée des items
   final RxList<WatchItem> _allItems = <WatchItem>[].obs;
   final RxList<WatchItem> filteredItems = <WatchItem>[].obs;
+
+  // Getter public pour accéder à tous les items (observable)
+  RxList<WatchItem> get allItems => _allItems;
 
   // États de recherche et filtres
   final RxString searchQuery = ''.obs;
@@ -22,6 +30,9 @@ class WatchHomeController extends GetxController {
   final RxString selectedPlatform = ''.obs;
   final RxString sortBy = 'updatedAt'.obs; // 'updatedAt' ou 'title'
 
+  // Controller pour le champ de recherche
+  final TextEditingController searchController = TextEditingController();
+
   // États de chargement et erreur
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
@@ -29,6 +40,15 @@ class WatchHomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Sync searchController with searchQuery
+    searchController.text = searchQuery.value;
+    searchController.addListener(() {
+      if (searchQuery.value != searchController.text) {
+        searchQuery.value = searchController.text;
+        _applyFilters();
+      }
+    });
+
     loadItems();
   }
 
@@ -36,7 +56,7 @@ class WatchHomeController extends GetxController {
   void loadItems() {
     final user = _auth.currentUser;
     if (user == null) {
-      error.value = 'Utilisateur non connecté';
+      error.value = 'watch_userNotConnected'.tr;
       return;
     }
 
@@ -44,19 +64,24 @@ class WatchHomeController extends GetxController {
     error.value = '';
 
     try {
-      _repository.streamItems(user.uid).listen(
-        (items) {
-          _allItems.value = items;
-          _applyFilters();
-          isLoading.value = false;
-        },
-        onError: (e) {
-          error.value = 'Erreur lors du chargement: $e';
-          isLoading.value = false;
-        },
-      );
+      _repository
+          .streamItems(user.uid)
+          .listen(
+            (items) {
+              _allItems.value = items;
+              _applyFilters();
+              isLoading.value = false;
+            },
+            onError: (e) {
+              error.value = 'watch_errorLoading'.tr.replaceAll(
+                '{error}',
+                e.toString(),
+              );
+              isLoading.value = false;
+            },
+          );
     } catch (e) {
-      error.value = 'Erreur lors du chargement: $e';
+      error.value = 'watch_errorLoading'.tr.replaceAll('{error}', e.toString());
       isLoading.value = false;
     }
   }
@@ -75,9 +100,7 @@ class WatchHomeController extends GetxController {
 
     // Filtre par type
     if (selectedType.value != null) {
-      items = items
-          .where((item) => item.type == selectedType.value)
-          .toList();
+      items = items.where((item) => item.type == selectedType.value).toList();
     }
 
     // Filtre par statut
@@ -104,8 +127,11 @@ class WatchHomeController extends GetxController {
     filteredItems.value = items;
   }
 
-  /// Met à jour la recherche
+  /// Met à jour la recherche (legacy/direct call)
   void updateSearch(String query) {
+    if (searchController.text != query) {
+      searchController.text = query;
+    }
     searchQuery.value = query;
     _applyFilters();
   }
@@ -136,7 +162,7 @@ class WatchHomeController extends GetxController {
 
   /// Réinitialise tous les filtres
   void resetFilters() {
-    searchQuery.value = '';
+    searchController.clear(); // Will trigger listener
     selectedType.value = null;
     selectedStatus.value = null;
     selectedPlatform.value = '';
@@ -151,11 +177,64 @@ class WatchHomeController extends GetxController {
 
   /// Navigue vers l'écran d'ajout
   void navigateToAdd() {
-    Get.toNamed('/watch/add');
+    Get.toNamed(Routes.watchAdd);
   }
 
   /// Navigue vers l'écran de détail
   void navigateToDetail(String itemId) {
-    Get.toNamed('/watch/detail', arguments: itemId);
+    final item = _allItems.firstWhereOrNull((element) => element.id == itemId);
+    if (item != null) {
+      Get.toNamed(Routes.watchDetail, arguments: item);
+    } else {
+      Get.toNamed(Routes.watchDetail, arguments: itemId);
+    }
+  }
+
+  /// Lance le mode aléatoire (exclut les items terminés)
+  void shuffleItems() {
+    // On prend les items filtrés (respecte la recherche/plateforme actuelles)
+    // MAIS on exclut forcément les "Terminés" car on cherche quoi regarder.
+    final candidates = filteredItems
+        .where((item) => item.status != WatchItemStatus.completed)
+        .toList();
+
+    if (candidates.isEmpty) {
+      Get.snackbar(
+        'watch_error'.tr,
+        'Aucun contenu à regarder disponible dans la liste actuelle (hors terminés).',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.kError,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final random = Random();
+    final randomItem = candidates[random.nextInt(candidates.length)];
+
+    Get.to(
+      () => ShuffleSelectionView(
+        item: randomItem,
+        onSpinAgain: () {
+          Get.back();
+          // Small delay for effect before reopening
+          Future.delayed(const Duration(milliseconds: 200), () {
+            shuffleItems();
+          });
+        },
+        onStartWatching: () {
+          Get.back();
+          Get.toNamed(Routes.watchDetail, arguments: randomItem);
+        },
+      ),
+      transition: Transition.zoom,
+      fullscreenDialog: true,
+    );
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 }

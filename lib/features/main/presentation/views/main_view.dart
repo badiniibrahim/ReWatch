@@ -7,17 +7,14 @@ import '../../../watch/presentation/views/watch_home_view.dart';
 import '../../../profile/views/profile_view.dart';
 import '../../../../core/config/app_colors.dart';
 
+import '../../../explore/presentation/views/explore_view.dart';
+
 class MainView extends GetView<MainController> {
   const MainView({super.key});
 
   static List<Widget> get pages => [
     const WatchHomeView(),
-    Center(
-      child: Text(
-        'nav_explore'.tr,
-        style: const TextStyle(color: AppColors.kTextPrimary),
-      ),
-    ),
+    const ExploreView(),
     const ProfileView(),
   ];
 

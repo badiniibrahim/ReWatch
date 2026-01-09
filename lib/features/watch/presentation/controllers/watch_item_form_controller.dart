@@ -7,7 +7,9 @@ import '../../domain/repositories/iwatch_items_repository.dart';
 import '../../../../core/services/image_service.dart';
 import '../../../../core/widgets/adaptive_dialog.dart';
 import '../../../../core/widgets/adaptive_text_field.dart';
-import '../../../../core/config/app_colors.dart';
+import '../../../../core/services/tmdb_service.dart';
+import '../views/tmdb_search_view.dart';
+import '../views/platform_selection_view.dart';
 
 /// Controller pour le formulaire d'ajout/édition d'un WatchItem
 class WatchItemFormController extends GetxController {
@@ -15,12 +17,15 @@ class WatchItemFormController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImageService _imageService = ImageService(); // Service d'image
   final WatchItem? _editingItem;
+  final TmdbResult? _initialData;
 
   WatchItemFormController({
     required IWatchItemsRepository repository,
     WatchItem? editingItem,
+    TmdbResult? initialData,
   }) : _repository = repository,
-       _editingItem = editingItem;
+       _editingItem = editingItem,
+       _initialData = initialData;
 
   // Controllers pour les champs
   final titleController = TextEditingController();
@@ -45,9 +50,21 @@ class WatchItemFormController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    if (_editingItem != null) {
-      _populateForm(_editingItem!);
+    final item = _editingItem;
+    if (item != null) {
+      _populateForm(item);
+    } else if (_initialData != null) {
+      _populateFromTmdb(_initialData!);
     }
+  }
+
+  void _populateFromTmdb(TmdbResult result) {
+    titleController.text = result.title;
+    descriptionController.text = result.overview;
+    imageController.text = result.posterUrl ?? '';
+    selectedType.value = result.type == 'tv'
+        ? WatchItemType.series
+        : WatchItemType.movie;
   }
 
   void _populateForm(WatchItem item) {
@@ -85,57 +102,60 @@ class WatchItemFormController extends GetxController {
   ];
 
   void showPlatformSelection() {
-    AdaptiveDialog.show(
-      context: Get.context!,
-      title: 'Choisir une plateforme',
-      contentWidget: SizedBox(
-        width: double.maxFinite,
-        child: ListView.separated(
-          shrinkWrap: true,
-          itemCount: platforms.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
-          itemBuilder: (context, index) {
-            final platform = platforms[index];
-            return ListTile(
-              title: Text(
-                platform,
-                style: const TextStyle(color: AppColors.kTextPrimary),
-              ),
-              onTap: () {
-                Get.back(); // Close dialog
-                if (platform == 'Autre...') {
-                  _showCustomPlatformDialog();
-                } else {
-                  platformController.text = platform;
-                }
-              },
-            );
-          },
-        ),
-      ),
-      actions: [AdaptiveDialogAction(text: 'Annuler')],
+    Get.to(
+      () => const PlatformSelectionView(),
+      transition: Transition.cupertino,
+      duration: const Duration(milliseconds: 300),
     );
   }
 
-  void _showCustomPlatformDialog() {
+  void showTmdbSearch() async {
+    final result = await Get.to<TmdbResult>(
+      () => const TmdbSearchView(),
+      transition: Transition.cupertino,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    if (result != null) {
+      _fillFromTmdb(result);
+    }
+  }
+
+  void _fillFromTmdb(TmdbResult result) {
+    titleController.text = result.title;
+    descriptionController.text = result.overview;
+    if (result.posterUrl != null) {
+      imageController.text = result.posterUrl!;
+      selectedImage.value = null; // Clear local image if any
+    }
+
+    // Auto-select type
+    if (result.type == 'tv') {
+      selectedType.value = WatchItemType.series;
+    } else {
+      selectedType.value = WatchItemType.movie;
+    }
+  }
+
+  void showCustomPlatformDialog() {
     final customController = TextEditingController();
     AdaptiveDialog.show(
       context: Get.context!,
-      title: 'Autre plateforme',
+      title: 'watch_platformOther'.tr,
       contentWidget: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           AdaptiveTextField(
             controller: customController,
-            placeholder: 'Nom de la plateforme',
-            hintText: 'Nom de la plateforme',
+            placeholder: 'watch_platformOtherNamePlaceholder'.tr,
+            hintText: 'watch_platformOtherNamePlaceholder'.tr,
           ),
         ],
       ),
       actions: [
-        AdaptiveDialogAction(text: 'Annuler'),
+        AdaptiveDialogAction(text: 'common_cancel'.tr),
         AdaptiveDialogAction(
-          text: 'Valider',
+          text: 'watch_validate'.tr,
           onPressed: () {
             if (customController.text.isNotEmpty) {
               platformController.text = customController.text;
@@ -164,11 +184,11 @@ class WatchItemFormController extends GetxController {
   /// Valide le formulaire
   bool validateForm() {
     if (titleController.text.trim().isEmpty) {
-      error.value = 'Le titre est obligatoire';
+      error.value = 'watch_titleRequired'.tr;
       return false;
     }
     if (platformController.text.trim().isEmpty) {
-      error.value = 'La plateforme est obligatoire';
+      error.value = 'watch_platformRequired'.tr;
       return false;
     }
     error.value = '';
@@ -183,7 +203,7 @@ class WatchItemFormController extends GetxController {
 
     final user = _auth.currentUser;
     if (user == null) {
-      error.value = 'Utilisateur non connecté';
+      error.value = 'watch_userNotConnected'.tr;
       return;
     }
 
@@ -198,7 +218,7 @@ class WatchItemFormController extends GetxController {
           selectedImage.value!,
         ); // use local var
         if (uploadedUrl == null) {
-          throw Exception('Échec de l\'upload de l\'image');
+          throw Exception('watch_imageUploadFailed'.tr);
         }
         imageUrl = uploadedUrl;
       }
@@ -244,7 +264,7 @@ class WatchItemFormController extends GetxController {
 
       Get.back(result: true);
     } catch (e) {
-      error.value = 'Erreur lors de la sauvegarde: $e';
+      error.value = 'watch_saveError'.tr.replaceAll('{error}', e.toString());
     } finally {
       isLoading.value = false;
     }

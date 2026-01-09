@@ -1,46 +1,22 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/config/app_colors.dart';
-import '../../../../core/widgets/adaptive_widgets.dart';
-import '../controllers/watch_item_detail_controller.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:rewatch/core/config/app_colors.dart';
+import 'package:rewatch/core/widgets/adaptive_button.dart';
+import 'package:rewatch/core/widgets/adaptive_scaffold.dart';
+import 'package:rewatch/core/widgets/platform_logo_helper.dart';
+import 'package:rewatch/features/watch/presentation/controllers/watch_item_detail_controller.dart';
 import '../../domain/entities/watch_item.dart';
 
-/// Écran de détail d'un WatchItem
+/// Écran de détail d'un WatchItem (Refonte Pro)
 class WatchItemDetailView extends GetView<WatchItemDetailController> {
   const WatchItemDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      backgroundColor: AppColors.kSurface,
-      appBar: AppBar(
-        title: Text(
-          'watch_details'.tr,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppColors.kTextPrimary,
-          ),
-        ),
-        backgroundColor: AppColors.kSurface,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit, color: AppColors.kTextPrimary),
-            onPressed: controller.navigateToEdit,
-          ),
-          IconButton(
-            icon: Obx(() => controller.isDeleting.value
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.delete, color: AppColors.kError)),
-            onPressed: controller.isDeleting.value ? null : controller.deleteItem,
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.kBackground,
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
@@ -53,6 +29,12 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Icon(
+                  FluentIcons.error_circle_48_regular,
+                  size: 48,
+                  color: AppColors.kError,
+                ),
+                const SizedBox(height: 16),
                 Text(
                   controller.error.value,
                   style: const TextStyle(color: AppColors.kError),
@@ -69,313 +51,478 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
 
         final item = controller.item.value;
         if (item == null) {
-          return Center(
-            child: Text('watch_itemNotFound'.tr),
-          );
+          return Center(child: Text('watch_itemNotFound'.tr));
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image
-              if (item.image != null && item.image!.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    item.image!,
-                    width: double.infinity,
-                    height: 300,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        _buildImagePlaceholder(item),
-                  ),
-                )
-              else
-                _buildImagePlaceholder(item),
-              const SizedBox(height: 24),
-              // Titre
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.kTextPrimary,
-                ),
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // --- HUGE HEADER ---
+            SliverAppBar(
+              expandedHeight: 400.0,
+              pinned: true,
+              stretch: true,
+              backgroundColor: AppColors.kBackground,
+              leading: IconButton(
+                icon: const Icon(FluentIcons.arrow_left_24_filled),
+                onPressed: () => Get.back(),
               ),
-              const SizedBox(height: 16),
-              // Plateforme et type
-              Row(
-                children: [
-                  _buildChip(
-                    item.platform,
-                    Icons.play_circle_outline,
-                    AppColors.kPrimary,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildChip(
-                    item.type == WatchItemType.series ? 'watch_typeSeries'.tr : 'watch_typeMovie'.tr,
-                    item.type == WatchItemType.series ? Icons.tv : Icons.movie,
-                    item.type == WatchItemType.series
-                        ? AppColors.kTypeSeries
-                        : AppColors.kTypeMovie,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildStatusChip(item.status),
+              actions: [
+                IconButton(
+                  icon: const Icon(FluentIcons.edit_24_regular),
+                  onPressed: controller.navigateToEdit,
+                  tooltip: 'Modifier',
+                ),
+                Obx(
+                  () => controller.isDeleting.value
+                      ? const Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : IconButton(
+                          icon: const Icon(
+                            FluentIcons.delete_24_regular,
+                            color: AppColors.kError,
+                          ),
+                          onPressed: controller.deleteItem,
+                          tooltip: 'Supprimer',
+                        ),
+                ),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [
+                  StretchMode.zoomBackground,
+                  StretchMode.blurBackground,
                 ],
-              ),
-              const SizedBox(height: 24),
-              // Progression (si série)
-              if (item.type == WatchItemType.series) ...[
-                _buildProgressSection(item),
-                const SizedBox(height: 24),
-              ],
-              // Description
-              if (item.description != null && item.description!.isNotEmpty) ...[
-                _buildSectionTitle('watch_description'.tr),
-                const SizedBox(height: 8),
-                Text(
-                  item.description!,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColors.kTextSecondary,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-              // Note personnelle
-              if (item.personalNote != null && item.personalNote!.isNotEmpty) ...[
-                _buildSectionTitle('watch_personalNote'.tr),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.kCard,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.kBorder, width: 1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.kShadow.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    item.personalNote!,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.kTextPrimary,
-                      height: 1.5,
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Image Background
+                    Hero(
+                      tag: 'item_image_${item.id}',
+                      child: _buildHeaderImage(item),
                     ),
-                  ),
+                    // Gradient Overlay
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.2),
+                            AppColors.kBackground.withValues(alpha: 0.8),
+                            AppColors.kBackground,
+                          ],
+                          stops: const [0.0, 0.5, 0.85, 1.0],
+                        ),
+                      ),
+                    ),
+                    // Bottom Info
+                    Positioned(
+                      bottom: 20,
+                      left: 20,
+                      right: 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Badges Row
+                          Row(
+                            children: [
+                              PlatformLogoHelper.getLogo(
+                                item.platform,
+                                size: 28,
+                              ),
+                              const SizedBox(width: 12),
+                              _buildMiniBadge(
+                                item.type == WatchItemType.series
+                                    ? 'watch_typeSeries'.tr
+                                    : 'watch_typeMovie'.tr,
+                                item.type == WatchItemType.series
+                                    ? AppColors.kTypeSeries
+                                    : AppColors.kTypeMovie,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildStatusBadge(item.status),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Title
+                          Text(
+                            item.title,
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              height: 1.1,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 10,
+                                  color: Colors.black54,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-              ],
-              // Actions (si en cours de visionnage)
-              if (item.status == WatchItemStatus.watching &&
-                  item.type == WatchItemType.series) ...[
-                _buildSectionTitle('watch_actions'.tr),
-                const SizedBox(height: 16),
-                _buildActionButtons(item),
-                const SizedBox(height: 24),
-              ],
-              // Marquer comme terminé (si pas déjà terminé)
-              if (item.status != WatchItemStatus.completed)
-                SizedBox(
-                  width: double.infinity,
-                  child: AdaptiveButton(
-                    text: 'watch_markAsCompleted'.tr,
-                    onPressed: controller.markAsCompleted,
-                    backgroundColor: AppColors.kSuccess,
-                  ),
+              ),
+            ),
+
+            // --- CONTENT BODY ---
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+
+                    // QUICK STATS / PROGRESS FOR SERIES
+                    if (item.type == WatchItemType.series &&
+                        item.status == WatchItemStatus.watching) ...[
+                      _buildProgressCard(item),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // SYNOPSIS
+                    if (item.description != null &&
+                        item.description!.isNotEmpty) ...[
+                      Text(
+                        'SYNOPSIS',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: AppColors.kTextSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        item.description!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 1.6,
+                          color: AppColors.kTextPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // NOTES
+                    if (item.personalNote != null &&
+                        item.personalNote!.isNotEmpty) ...[
+                      _buildInfoCard(
+                        title: 'watch_personalNote'.tr,
+                        icon: FluentIcons.note_24_regular,
+                        content: item.personalNote!,
+                        color: AppColors.kPrimary.withValues(alpha: 0.1),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // METADATA GRID
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: [
+                        _buildMetadataItem(
+                          'Ajouté le',
+                          _formatDate(item.createdAt),
+                        ),
+                        if (item.lastWatchedAt != null)
+                          _buildMetadataItem(
+                            'Vu le',
+                            _formatDate(item.lastWatchedAt!),
+                          ),
+                        if (item.type == WatchItemType.series &&
+                            item.seasonsCount != null)
+                          _buildMetadataItem('Saisons', '${item.seasonsCount}'),
+                      ],
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // ACTIONS
+                    // ACTIONS
+                    if (item.status != WatchItemStatus.completed)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 40),
+                          child: AdaptiveButton(
+                            text: 'watch_markAsCompleted'.tr,
+                            onPressed: controller.markAsCompleted,
+                            backgroundColor: AppColors.kSuccess,
+                            // icon: FluentIcons.checkmark_circle_24_filled,
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 40),
+                  ],
                 ),
-              const SizedBox(height: 16),
-            ],
-          ),
+              ),
+            ),
+          ],
         );
       }),
     );
   }
 
-  Widget _buildImagePlaceholder(WatchItem item) {
-    return Container(
-      width: double.infinity,
-      height: 300,
-      decoration: BoxDecoration(
-        color: AppColors.kSurfaceVariant,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Icon(
-        item.type == WatchItemType.series ? Icons.tv : Icons.movie,
-        size: 80,
-        color: AppColors.kTextSecondary,
-      ),
-    );
-  }
-
-  Widget _buildChip(String label, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusChip(WatchItemStatus status) {
-    Color statusColor;
-    String statusLabel;
-    IconData statusIcon;
-
-    switch (status) {
-      case WatchItemStatus.watching:
-        statusColor = AppColors.kStatusWatching;
-        statusLabel = 'watch_statusWatching'.tr;
-        statusIcon = Icons.play_circle;
-        break;
-      case WatchItemStatus.completed:
-        statusColor = AppColors.kStatusCompleted;
-        statusLabel = 'watch_statusCompleted'.tr;
-        statusIcon = Icons.check_circle;
-        break;
-      case WatchItemStatus.planned:
-        statusColor = AppColors.kStatusPlanned;
-        statusLabel = 'watch_statusPlanned'.tr;
-        statusIcon = Icons.schedule;
-        break;
+  Widget _buildHeaderImage(WatchItem item) {
+    if (item.image != null && item.image!.isNotEmpty) {
+      // Check if it's a URL or local path
+      bool isUrl = item.image!.startsWith('http');
+      return isUrl
+          ? Image.network(item.image!, fit: BoxFit.cover)
+          : Image.file(File(item.image!), fit: BoxFit.cover);
     }
-
-    return _buildChip(statusLabel, statusIcon, statusColor);
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: AppColors.kTextPrimary,
-      ),
-    );
-  }
-
-  Widget _buildProgressSection(WatchItem item) {
     return Container(
-      padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.kCard,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.kBorder, width: 1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.kShadow.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle('watch_progress'.tr),
-          const SizedBox(height: 16),
-          if (item.currentSeason != null)
-            _buildProgressRow(
-              'watch_currentSeason'.tr,
-              item.currentSeason.toString(),
-            ),
-          if (item.currentEpisode != null)
-            _buildProgressRow(
-              'watch_currentEpisode'.tr,
-              item.currentEpisode.toString(),
-            ),
-          if (item.seasonsCount != null)
-            _buildProgressRow(
-              'watch_seasonsCount'.tr,
-              item.seasonsCount.toString(),
-            ),
-          if (item.lastWatchedAt != null)
-            _buildProgressRow(
-              'watch_lastWatched'.tr,
-              _formatDate(item.lastWatchedAt!),
-            ),
-        ],
+      color: AppColors.kSurfaceVariant,
+      child: Center(
+        child: Icon(
+          item.type == WatchItemType.series
+              ? FluentIcons.movies_and_tv_24_regular
+              : FluentIcons.video_24_regular,
+          size: 80,
+          color: AppColors.kTextSecondary.withValues(alpha: 0.3),
+        ),
       ),
     );
   }
 
-  Widget _buildProgressRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: AppColors.kTextSecondary,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.kTextPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(WatchItem item) {
+  Widget _buildMetadataItem(String label, String value) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: AdaptiveButton(
-            text: 'watch_incrementEpisode'.tr,
-            onPressed: controller.incrementEpisode,
-            backgroundColor: AppColors.kPrimary,
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            color: AppColors.kTextSecondary.withValues(alpha: 0.7),
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        if (item.currentSeason != null) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: AdaptiveButton(
-              text: 'watch_nextSeason'.tr,
-              onPressed: controller.nextSeason,
-              backgroundColor: AppColors.kInfo,
-            ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppColors.kTextPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
-        ],
+        ),
       ],
     );
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  Widget _buildMiniBadge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+      ),
+      child: Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(WatchItemStatus status) {
+    Color color;
+    String text;
+    switch (status) {
+      case WatchItemStatus.watching:
+        color = AppColors.kStatusWatching;
+        text = 'Watching';
+        break;
+      case WatchItemStatus.completed:
+        color = AppColors.kStatusCompleted;
+        text = 'Terminé';
+        break;
+      case WatchItemStatus.planned:
+        color = AppColors.kStatusPlanned;
+        text = 'À voir';
+        break;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressCard(WatchItem item) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.kSurfaceElevated,
+            AppColors.kSurfaceElevated.withValues(alpha: 0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.kBorder.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                children: [
+                  const Text(
+                    "SAISON",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.kTextSecondary,
+                    ),
+                  ),
+                  Text(
+                    "${item.currentSeason ?? 1}",
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.kTextPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              Container(width: 1, height: 40, color: AppColors.kBorder),
+              Column(
+                children: [
+                  const Text(
+                    "ÉPISODE",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.kTextSecondary,
+                    ),
+                  ),
+                  Text(
+                    "${item.currentEpisode ?? 1}",
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.kTextPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: AdaptiveButton(
+                  text: '+ Episode',
+                  onPressed: controller.incrementEpisode,
+                  backgroundColor: AppColors.kPrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AdaptiveButton(
+                  text: '+ Saison',
+                  onPressed: controller.nextSeason,
+                  backgroundColor: AppColors.kSurfaceVariant,
+                  // textColor: AppColors.kTextPrimary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required String title,
+    required IconData icon,
+    required String content,
+    Color? color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: color ?? AppColors.kSurfaceElevated,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18, color: AppColors.kTextSecondary),
+              const SizedBox(width: 8),
+              Text(
+                title.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.kTextSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            content,
+            style: const TextStyle(
+              fontSize: 16,
+              height: 1.5,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
