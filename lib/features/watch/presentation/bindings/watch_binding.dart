@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:rewatch/core/services/tmdb_service.dart';
 import '../../data/repositories/watch_items_repository.dart';
 import '../../domain/repositories/iwatch_items_repository.dart';
 import '../controllers/watch_home_controller.dart';
@@ -32,10 +33,21 @@ class WatchItemFormBinding extends Bindings {
 
   @override
   void dependencies() {
+    final args = editingItem ?? Get.arguments;
+    WatchItem? itemToEdit;
+    TmdbResult? tmdbData;
+
+    if (args is WatchItem) {
+      itemToEdit = args;
+    } else if (args is TmdbResult) {
+      tmdbData = args;
+    }
+
     Get.put<WatchItemFormController>(
       WatchItemFormController(
         repository: Get.find<IWatchItemsRepository>(),
-        editingItem: editingItem ?? Get.arguments,
+        editingItem: itemToEdit,
+        initialData: tmdbData,
       ),
     );
   }

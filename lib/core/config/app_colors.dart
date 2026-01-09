@@ -33,6 +33,9 @@ class AppColors {
   /// "Info Blue" - Liens, Infos neutres
   static const Color kInfo = Color(0xFF3DA9FC);
 
+  /// Alias pour les notes/éttoiles
+  static const Color kRating = kWarning;
+
   // ========== NEUTRALS (DARK MODE DEFAULT) ==========
   /// Background principal (Noir profond mais pas pur pour éviter le smearing OLED)
   static const Color kBackground = Color(0xFF0A0A0A); // Almost Black

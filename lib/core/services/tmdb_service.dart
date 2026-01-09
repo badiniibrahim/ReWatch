@@ -42,6 +42,44 @@ class TmdbService {
       return [];
     }
   }
+
+  /// Récupère les tendances de la semaine (Films et Séries)
+  Future<List<TmdbResult>> getTrending() async {
+    try {
+      final response = await _dio.get('$_baseUrl/trending/all/week');
+
+      final results = (response.data['results'] as List)
+          .map((item) => TmdbResult.fromJson(item, _imageBaseUrl))
+          .toList();
+
+      return results;
+    } catch (e) {
+      print('Erreur TMDB Trending: $e');
+      return [];
+    }
+  }
+
+  /// Récupère les films actuellement au cinéma
+  Future<List<TmdbResult>> getNowPlayingMovies() async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/movie/now_playing',
+        queryParameters: {'region': 'FR'},
+      );
+
+      final results = (response.data['results'] as List)
+          .map(
+            (item) =>
+                TmdbResult.fromJson(item, _imageBaseUrl, mediaType: 'movie'),
+          )
+          .toList();
+
+      return results;
+    } catch (e) {
+      print('Erreur TMDB Now Playing: $e');
+      return [];
+    }
+  }
 }
 
 class TmdbResult {
@@ -51,6 +89,7 @@ class TmdbResult {
   final String? posterUrl;
   final String type; // 'movie' or 'tv'
   final String? releaseDate;
+  final double? rating;
 
   TmdbResult({
     required this.id,
@@ -59,9 +98,14 @@ class TmdbResult {
     this.posterUrl,
     required this.type,
     this.releaseDate,
+    this.rating,
   });
 
-  factory TmdbResult.fromJson(Map<String, dynamic> json, String imageBaseUrl) {
+  factory TmdbResult.fromJson(
+    Map<String, dynamic> json,
+    String imageBaseUrl, {
+    String? mediaType,
+  }) {
     return TmdbResult(
       id: json['id'],
       title: json['title'] ?? json['name'] ?? 'Titre inconnu',
@@ -69,8 +113,9 @@ class TmdbResult {
       posterUrl: json['poster_path'] != null
           ? '$imageBaseUrl${json['poster_path']}'
           : null,
-      type: json['media_type'] ?? 'movie',
+      type: mediaType ?? json['media_type'] ?? 'movie',
       releaseDate: json['release_date'] ?? json['first_air_date'],
+      rating: (json['vote_average'] as num?)?.toDouble(),
     );
   }
 }

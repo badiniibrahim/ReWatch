@@ -17,12 +17,15 @@ class WatchItemFormController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImageService _imageService = ImageService(); // Service d'image
   final WatchItem? _editingItem;
+  final TmdbResult? _initialData;
 
   WatchItemFormController({
     required IWatchItemsRepository repository,
     WatchItem? editingItem,
+    TmdbResult? initialData,
   }) : _repository = repository,
-       _editingItem = editingItem;
+       _editingItem = editingItem,
+       _initialData = initialData;
 
   // Controllers pour les champs
   final titleController = TextEditingController();
@@ -50,7 +53,18 @@ class WatchItemFormController extends GetxController {
     final item = _editingItem;
     if (item != null) {
       _populateForm(item);
+    } else if (_initialData != null) {
+      _populateFromTmdb(_initialData!);
     }
+  }
+
+  void _populateFromTmdb(TmdbResult result) {
+    titleController.text = result.title;
+    descriptionController.text = result.overview;
+    imageController.text = result.posterUrl ?? '';
+    selectedType.value = result.type == 'tv'
+        ? WatchItemType.series
+        : WatchItemType.movie;
   }
 
   void _populateForm(WatchItem item) {
