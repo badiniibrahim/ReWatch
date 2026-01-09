@@ -219,15 +219,11 @@ class ExploreView extends GetView<ExploreController> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6B4DFF), Color(0xFFC850C0)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.kPrimary,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6B4DFF).withOpacity(0.4),
+            color: AppColors.kPrimary.withValues(alpha: 0.4),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
