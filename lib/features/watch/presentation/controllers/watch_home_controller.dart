@@ -190,12 +190,18 @@ class WatchHomeController extends GetxController {
     }
   }
 
-  /// Lance le mode aléatoire
+  /// Lance le mode aléatoire (exclut les items terminés)
   void shuffleItems() {
-    if (filteredItems.isEmpty) {
+    // On prend les items filtrés (respecte la recherche/plateforme actuelles)
+    // MAIS on exclut forcément les "Terminés" car on cherche quoi regarder.
+    final candidates = filteredItems
+        .where((item) => item.status != WatchItemStatus.completed)
+        .toList();
+
+    if (candidates.isEmpty) {
       Get.snackbar(
         'watch_error'.tr,
-        'watch_noItems'.tr,
+        'Aucun contenu à regarder disponible dans la liste actuelle (hors terminés).',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.kError,
         colorText: Colors.white,
@@ -204,7 +210,7 @@ class WatchHomeController extends GetxController {
     }
 
     final random = Random();
-    final randomItem = filteredItems[random.nextInt(filteredItems.length)];
+    final randomItem = candidates[random.nextInt(candidates.length)];
 
     Get.to(
       () => ShuffleSelectionView(
