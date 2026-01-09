@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:rewatch/features/watch/presentation/views/watch_filters_view.dart';
 import 'package:get/get.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import '../../../../core/config/app_colors.dart';
 import '../../../../core/widgets/adaptive_widgets.dart';
 import '../controllers/watch_home_controller.dart';
 import 'widgets/watch_item_card.dart';
-import 'widgets/filter_bottom_sheet.dart';
 
 /// Écran Home de ReWatch - Liste des items avec recherche et filtres
 class WatchHomeView extends GetView<WatchHomeController> {
@@ -65,7 +65,7 @@ class WatchHomeView extends GetView<WatchHomeController> {
               FluentIcons.filter_24_regular,
               color: AppColors.kTextPrimary,
             ),
-            onPressed: () => _showFilterBottomSheet(context),
+            onPressed: () => _showFilterModal(context),
             tooltip: 'watch_filters'.tr,
           ),
         ),
@@ -264,14 +264,15 @@ class WatchHomeView extends GetView<WatchHomeController> {
     });
   }
 
-  void _showFilterBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.kSurfaceElevated,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => FilterBottomSheet(controller: controller),
+  void _showFilterModal(BuildContext context) {
+    Get.to(
+      () => const WatchFiltersView(),
+      transition: Transition.downToUp,
+      fullscreenDialog: true,
+      binding: BindingsBuilder(() {
+        // Le contrôleur est déjà en mémoire via WatchHomeView,
+        // GetView le trouvera automatiquement.
+      }),
     );
   }
 }
