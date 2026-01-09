@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Règles pour les watchItems
+    match /watchItems/{itemId} {
+      // L'utilisateur doit être authentifié
+      allow read, write: if request.auth != null 
+        && request.auth.uid == resource.data.uid;
+      
+      // Permettre la création si l'uid correspond
+      allow create: if request.auth != null 
+        && request.auth.uid == request.resource.data.uid;
+      
+      // Permettre la mise à jour si l'uid correspond
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.uid
+        && request.auth.uid == request.resource.data.uid;
+      
+      // Permettre la suppression si l'uid correspond
+      allow delete: if request.auth != null 
+        && request.auth.uid == resource.data.uid;
+    }
+  }
+}

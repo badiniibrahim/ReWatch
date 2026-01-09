@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "824974596986",
+    "project_id": "rewatch-88629",
+    "storage_bucket": "rewatch-88629.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:824974596986:android:94ab13bdf327e9f7bc94c3",
+        "android_client_info": {
+          "package_name": "badiniibrahim.rewatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQZ8xwYZHG_YmOm4vZtgE_BRMjaBklkQo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

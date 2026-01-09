@@ -1,0 +1,5 @@
+
+IMAGE_KIT_URL_ENDPOINT=https://ik.imagekit.io/3wokxejkgg
+IMAGE_PUBLIC_KIT_IMAGE=public_zO1nfDJqCFYiIehthgxfEQPfH1I=
+IMAGE_PRIVATE_KIT_IMAGE=private_tOIUp9jW4I4mPybmxHsNrLnqdVU=
+MAGE_UPLOAD_URL=https://upload.imagekit.io/api/v1/files/upload
