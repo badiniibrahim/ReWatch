@@ -159,6 +159,11 @@ class WatchHomeView extends GetView<WatchHomeController> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: controller.shuffleItems,
+        backgroundColor: AppColors.kPrimary,
+        child: const Icon(Icons.auto_awesome, color: Colors.white),
+      ),
     );
   }
 

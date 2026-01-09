@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rewatch/core/config/app_colors.dart';
+import 'package:rewatch/core/widgets/platform_logo_helper.dart';
 import 'package:rewatch/features/watch/domain/entities/watch_item.dart';
 
 /// Carte affichant un WatchItem dans la liste
@@ -57,11 +58,7 @@ class WatchItemCard extends StatelessWidget {
                   // Plateforme et type
                   Row(
                     children: [
-                      _buildChip(
-                        item.platform,
-                        Icons.play_circle_outline,
-                        AppColors.kPrimary,
-                      ),
+                      _buildPlatformChip(item.platform),
                       const SizedBox(width: 8),
                       _buildChip(
                         item.type == WatchItemType.series ? 'watch_typeSeries'.tr : 'watch_typeMovie'.tr,
@@ -129,6 +126,36 @@ class WatchItemCard extends StatelessWidget {
         item.type == WatchItemType.series ? Icons.tv : Icons.movie,
         color: AppColors.kTextSecondary,
         size: 40,
+      ),
+    );
+  }
+
+  Widget _buildPlatformChip(String platform) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.kPrimary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppColors.kPrimary.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PlatformLogoHelper.getLogo(platform, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            platform,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.kPrimary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -100,9 +100,7 @@ class AdaptiveTextField extends StatelessWidget {
             style ??
             TextStyle(
               fontFamily: AppThemes.kFontFamily,
-              color: (fillColor ?? Colors.white) == Colors.white
-                  ? AppColors.kLightTextPrimary
-                  : AppColors.kTextPrimary,
+              color: _getTextColor(fillColor ?? Colors.white),
               fontSize: 17,
             ),
         placeholderStyle:
@@ -135,9 +133,7 @@ class AdaptiveTextField extends StatelessWidget {
           style ??
           TextStyle(
             fontFamily: AppThemes.kFontFamily,
-            color: (fillColor ?? Colors.white) == Colors.white
-                ? AppColors.kLightTextPrimary
-                : AppColors.kTextPrimary,
+            color: _getTextColor(fillColor ?? Colors.white),
             fontSize: 16,
           ),
       decoration:
@@ -177,5 +173,16 @@ class AdaptiveTextField extends StatelessWidget {
             ),
           ),
     );
+  }
+
+  /// Détermine la couleur du texte en fonction de la couleur de fond
+  Color _getTextColor(Color backgroundColor) {
+    // Calcule la luminosité relative (0.0 = noir, 1.0 = blanc)
+    final luminance = backgroundColor.computeLuminance();
+    // Si le fond est clair (luminance > 0.5), utilise une couleur sombre
+    // Sinon, utilise une couleur claire
+    return luminance > 0.5
+        ? AppColors.kLightTextPrimary
+        : AppColors.kTextPrimary;
   }
 }

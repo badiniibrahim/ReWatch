@@ -75,7 +75,28 @@ class WatchItemFormView extends GetView<WatchItemFormController> {
             ),
             const SizedBox(height: 24),
             // Titre (obligatoire)
-            _buildSectionTitle('watch_formTitle'.tr),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildSectionTitle('watch_formTitle'.tr),
+                TextButton.icon(
+                  onPressed: controller.showTmdbSearch,
+                  icon: const Icon(
+                    Icons.auto_awesome,
+                    size: 16,
+                    color: AppColors.kPrimary,
+                  ),
+                  label: Text(
+                    'watch_fillWithTmdb'.tr,
+                    style: const TextStyle(color: AppColors.kPrimary, fontSize: 12),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 8),
             AdaptiveTextField(
               controller: controller.titleController,
@@ -205,9 +226,9 @@ class WatchItemFormView extends GetView<WatchItemFormController> {
                     const SizedBox(height: 8),
                     TextButton.icon(
                       icon: const Icon(Icons.delete, color: AppColors.kError),
-                      label: const Text(
-                        "Supprimer l'image",
-                        style: TextStyle(color: AppColors.kError),
+                      label: Text(
+                        'watch_deleteImage'.tr,
+                        style: const TextStyle(color: AppColors.kError),
                       ),
                       onPressed: controller.removeImage,
                     ),
@@ -230,9 +251,9 @@ class WatchItemFormView extends GetView<WatchItemFormController> {
                     const SizedBox(height: 8),
                     TextButton.icon(
                       icon: const Icon(Icons.delete, color: AppColors.kError),
-                      label: const Text(
-                        "Supprimer l'image",
-                        style: TextStyle(color: AppColors.kError),
+                      label: Text(
+                        'watch_deleteImage'.tr,
+                        style: const TextStyle(color: AppColors.kError),
                       ),
                       onPressed: controller.removeImage,
                     ),
@@ -249,19 +270,19 @@ class WatchItemFormView extends GetView<WatchItemFormController> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.kBorder),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.add_photo_alternate,
                             size: 40,
                             color: AppColors.kTextSecondary,
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
-                            "Choisir une image",
-                            style: TextStyle(color: AppColors.kTextSecondary),
+                            'watch_selectImage'.tr,
+                            style: const TextStyle(color: AppColors.kTextSecondary),
                           ),
                         ],
                       ),

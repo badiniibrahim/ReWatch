@@ -162,8 +162,10 @@ class LocaleKeys {
   static const watch_formPersonalNote = 'watch_formPersonalNote';
   static const watch_formPersonalNotePlaceholder =
       'watch_formPersonalNotePlaceholder';
+  static const watch_formImage = 'watch_formImage';
   static const watch_formImageUrl = 'watch_formImageUrl';
   static const watch_formImageUrlPlaceholder = 'watch_formImageUrlPlaceholder';
+  static const watch_deleteImage = 'watch_deleteImage';
   static const watch_searchPlaceholder = 'watch_searchPlaceholder';
   static const watch_noResults = 'watch_noResults';
   static const watch_noContent = 'watch_noContent';
@@ -174,6 +176,25 @@ class LocaleKeys {
   static const watch_errorDeleting = 'watch_errorDeleting';
   static const watch_deleteConfirmTitle = 'watch_deleteConfirmTitle';
   static const watch_deleteConfirmMessage = 'watch_deleteConfirmMessage';
+  static const watch_tmdbSearchTitle = 'watch_tmdbSearchTitle';
+  static const watch_tmdbSearchPlaceholder = 'watch_tmdbSearchPlaceholder';
+  static const watch_tmdbSearchEmpty = 'watch_tmdbSearchEmpty';
+  static const watch_tmdbSearchEmptyHint = 'watch_tmdbSearchEmptyHint';
+  static const watch_tmdbNoResults = 'watch_tmdbNoResults';
+  static const watch_tmdbNoResultsHint = 'watch_tmdbNoResultsHint';
+  static const watch_tmdbNoDescription = 'watch_tmdbNoDescription';
+  static const watch_platformSelectionTitle = 'watch_platformSelectionTitle';
+  static const watch_platformOther = 'watch_platformOther';
+  static const watch_platformOtherName = 'watch_platformOtherName';
+  static const watch_platformOtherNamePlaceholder =
+      'watch_platformOtherNamePlaceholder';
+  static const watch_validate = 'watch_validate';
+  static const watch_titleRequired = 'watch_titleRequired';
+  static const watch_platformRequired = 'watch_platformRequired';
+  static const watch_imageUploadFailed = 'watch_imageUploadFailed';
+  static const watch_saveError = 'watch_saveError';
+  static const watch_fillWithTmdb = 'watch_fillWithTmdb';
+  static const watch_selectImage = 'watch_selectImage';
   static const profile_settings = 'profile_settings';
   static const profile_not_logged_in = 'profile_not_logged_in';
   static const profile_section_app = 'profile_section_app';
@@ -346,8 +367,10 @@ class Locales {
     'watch_formDescriptionPlaceholder': 'Description (optional)',
     'watch_formPersonalNote': 'Personal note',
     'watch_formPersonalNotePlaceholder': 'Your summary or note (optional)',
+    'watch_formImage': 'Image',
     'watch_formImageUrl': 'Image URL',
     'watch_formImageUrlPlaceholder': 'Image URL (optional)',
+    'watch_deleteImage': 'Delete image',
     'watch_searchPlaceholder': 'Search by title...',
     'watch_noResults': 'No results',
     'watch_noContent': 'No content added',
@@ -358,6 +381,24 @@ class Locales {
     'watch_errorDeleting': 'Error deleting: {error}',
     'watch_deleteConfirmTitle': 'Delete',
     'watch_deleteConfirmMessage': 'Are you sure you want to delete this item?',
+    'watch_tmdbSearchTitle': 'TMDB Search',
+    'watch_tmdbSearchPlaceholder': 'Search for a movie or series...',
+    'watch_tmdbSearchEmpty': 'Search for a movie or series',
+    'watch_tmdbSearchEmptyHint': 'Type the title and press Enter',
+    'watch_tmdbNoResults': 'No results found',
+    'watch_tmdbNoResultsHint': 'Try with another title',
+    'watch_tmdbNoDescription': 'No description available',
+    'watch_platformSelectionTitle': 'Choose a platform',
+    'watch_platformOther': 'Other platform',
+    'watch_platformOtherName': 'Platform name',
+    'watch_platformOtherNamePlaceholder': 'Platform name',
+    'watch_validate': 'Validate',
+    'watch_titleRequired': 'Title is required',
+    'watch_platformRequired': 'Platform is required',
+    'watch_imageUploadFailed': 'Image upload failed',
+    'watch_saveError': 'Error saving: {error}',
+    'watch_fillWithTmdb': 'Fill with TMDB',
+    'watch_selectImage': 'Select an image',
     'profile_settings': 'Settings',
     'profile_not_logged_in': 'Not logged in',
     'profile_section_app': 'APP',
@@ -530,8 +571,10 @@ class Locales {
     'watch_formDescriptionPlaceholder': 'Description (optionnel)',
     'watch_formPersonalNote': 'Note personnelle',
     'watch_formPersonalNotePlaceholder': 'Votre résumé ou note (optionnel)',
+    'watch_formImage': 'Image',
     'watch_formImageUrl': 'URL de l\'image',
     'watch_formImageUrlPlaceholder': 'URL de l\'image (optionnel)',
+    'watch_deleteImage': 'Supprimer l\'image',
     'watch_searchPlaceholder': 'Rechercher par titre...',
     'watch_noResults': 'Aucun résultat',
     'watch_noContent': 'Aucun contenu ajouté',
@@ -543,6 +586,24 @@ class Locales {
     'watch_deleteConfirmTitle': 'Supprimer',
     'watch_deleteConfirmMessage':
         'Êtes-vous sûr de vouloir supprimer cet élément ?',
+    'watch_tmdbSearchTitle': 'Recherche TMDB',
+    'watch_tmdbSearchPlaceholder': 'Rechercher un film ou une série...',
+    'watch_tmdbSearchEmpty': 'Recherchez un film ou une série',
+    'watch_tmdbSearchEmptyHint': 'Tapez le titre et appuyez sur Entrée',
+    'watch_tmdbNoResults': 'Aucun résultat trouvé',
+    'watch_tmdbNoResultsHint': 'Essayez avec un autre titre',
+    'watch_tmdbNoDescription': 'Aucune description disponible',
+    'watch_platformSelectionTitle': 'Choisir une plateforme',
+    'watch_platformOther': 'Autre plateforme',
+    'watch_platformOtherName': 'Nom de la plateforme',
+    'watch_platformOtherNamePlaceholder': 'Nom de la plateforme',
+    'watch_validate': 'Valider',
+    'watch_titleRequired': 'Le titre est obligatoire',
+    'watch_platformRequired': 'La plateforme est obligatoire',
+    'watch_imageUploadFailed': 'Échec de l\'upload de l\'image',
+    'watch_saveError': 'Erreur lors de la sauvegarde: {error}',
+    'watch_fillWithTmdb': 'Remplir avec TMDB',
+    'watch_selectImage': 'Choisir une image',
     'profile_settings': 'Paramètres',
     'profile_not_logged_in': 'Non connecté',
     'profile_section_app': 'APPLICATION',

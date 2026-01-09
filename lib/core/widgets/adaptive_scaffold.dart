@@ -54,15 +54,15 @@ class AdaptiveScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBackgroundColor =
-        backgroundColor ?? AppColors.kSurface;
+    final effectiveBackgroundColor = backgroundColor ?? AppColors.kSurface;
 
     if (PlatformService.isIOS) {
       // Sur iOS, si on a un bottomNavigationBar, on doit l'intégrer dans le body
       if (bottomNavigationBar != null) {
         return CupertinoPageScaffold(
           backgroundColor: effectiveBackgroundColor,
-          navigationBar: navigationBar ??
+          navigationBar:
+              navigationBar ??
               (title != null
                   ? CupertinoNavigationBar(
                       middle: Text(
@@ -86,10 +86,7 @@ class AdaptiveScaffold extends StatelessWidget {
             children: [
               Expanded(
                 child: useSafeArea
-                    ? SafeArea(
-                        child: body,
-                        bottom: false,
-                      )
+                    ? SafeArea(child: body, bottom: false)
                     : body,
               ),
               bottomNavigationBar!,
@@ -99,9 +96,22 @@ class AdaptiveScaffold extends StatelessWidget {
       }
 
       // Sans bottomNavigationBar, comportement normal
+      Widget content = useSafeArea ? SafeArea(child: body) : body;
+
+      // Ajout du FAB sur iOS via Stack
+      if (floatingActionButton != null) {
+        content = Stack(
+          children: [
+            content,
+            Positioned(bottom: 16, right: 16, child: floatingActionButton!),
+          ],
+        );
+      }
+
       return CupertinoPageScaffold(
         backgroundColor: effectiveBackgroundColor,
-        navigationBar: navigationBar ??
+        navigationBar:
+            navigationBar ??
             (title != null
                 ? CupertinoNavigationBar(
                     middle: Text(
@@ -114,25 +124,19 @@ class AdaptiveScaffold extends StatelessWidget {
                     ),
                     backgroundColor: AppColors.kCard,
                     border: Border(
-                      bottom: BorderSide(
-                        color: AppColors.kBorder,
-                        width: 0.5,
-                      ),
+                      bottom: BorderSide(color: AppColors.kBorder, width: 0.5),
                     ),
                   )
                 : null),
-        child: useSafeArea
-            ? SafeArea(
-                child: body,
-              )
-            : body,
+        child: content,
       );
     }
 
     // Material Design pour Android
     return Scaffold(
       backgroundColor: effectiveBackgroundColor,
-      appBar: appBar ??
+      appBar:
+          appBar ??
           (title != null
               ? AppBar(
                   title: Text(
@@ -149,11 +153,7 @@ class AdaptiveScaffold extends StatelessWidget {
                   iconTheme: IconThemeData(color: AppColors.kTextPrimary),
                 )
               : null),
-      body: useSafeArea
-          ? SafeArea(
-              child: body,
-            )
-          : body,
+      body: useSafeArea ? SafeArea(child: body) : body,
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
@@ -161,4 +161,3 @@ class AdaptiveScaffold extends StatelessWidget {
     );
   }
 }
-

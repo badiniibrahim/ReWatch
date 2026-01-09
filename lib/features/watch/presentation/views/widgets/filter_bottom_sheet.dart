@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rewatch/core/config/app_colors.dart';
 import 'package:rewatch/core/widgets/adaptive_button.dart';
+import 'package:rewatch/core/widgets/platform_logo_helper.dart';
 import 'package:rewatch/features/watch/domain/entities/watch_item.dart';
 import 'package:rewatch/features/watch/presentation/controllers/watch_home_controller.dart';
 
@@ -121,6 +122,7 @@ class FilterBottomSheet extends StatelessWidget {
                       label: platform,
                       selected: controller.selectedPlatform.value == platform,
                       onTap: () => controller.updatePlatformFilter(platform),
+                      leading: PlatformLogoHelper.getLogo(platform, size: 20),
                     )),
               ],
             );
@@ -176,6 +178,7 @@ class FilterBottomSheet extends StatelessWidget {
     required String label,
     required bool selected,
     required VoidCallback onTap,
+    Widget? leading,
   }) {
     return InkWell(
       onTap: onTap,
@@ -191,15 +194,24 @@ class FilterBottomSheet extends StatelessWidget {
             color: selected ? AppColors.kPrimary : AppColors.kBorder,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: selected
-                ? Colors.white
-                : AppColors.kTextPrimary,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (leading != null) ...[
+              leading,
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: selected
+                    ? Colors.white
+                    : AppColors.kTextPrimary,
+              ),
+            ),
+          ],
         ),
       ),
     );
