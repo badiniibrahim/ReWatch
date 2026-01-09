@@ -63,38 +63,30 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
               pinned: true,
               stretch: true,
               backgroundColor: AppColors.kBackground,
-              leading: IconButton(
-                icon: const Icon(FluentIcons.arrow_left_24_filled),
-                onPressed: () => Get.back(),
+              leading: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildAppBarButton(
+                  icon: FluentIcons.arrow_left_24_filled,
+                  onTap: () => Get.back(),
+                ),
               ),
               actions: [
-                IconButton(
-                  icon: const Icon(FluentIcons.edit_24_regular),
-                  onPressed: controller.navigateToEdit,
+                _buildAppBarButton(
+                  icon: FluentIcons.edit_24_filled,
+                  onTap: controller.navigateToEdit,
                   tooltip: 'Modifier',
                 ),
+                const SizedBox(width: 8),
                 Obx(
-                  () => controller.isDeleting.value
-                      ? const Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      : IconButton(
-                          icon: const Icon(
-                            FluentIcons.delete_24_regular,
-                            color: AppColors.kError,
-                          ),
-                          onPressed: controller.deleteItem,
-                          tooltip: 'Supprimer',
-                        ),
+                  () => _buildAppBarButton(
+                    icon: FluentIcons.delete_24_filled,
+                    iconColor: AppColors.kError,
+                    onTap: controller.deleteItem,
+                    isLoading: controller.isDeleting.value,
+                    tooltip: 'Supprimer',
+                  ),
                 ),
+                const SizedBox(width: 16),
               ],
               flexibleSpace: FlexibleSpaceBar(
                 stretchModes: const [
@@ -189,8 +181,8 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
                     const SizedBox(height: 20),
 
                     // QUICK STATS / PROGRESS FOR SERIES
-                    if (item.type == WatchItemType.series &&
-                        item.status == WatchItemStatus.watching) ...[
+                    // Show for any series so user can track/see progress even if Planned
+                    if (item.type == WatchItemType.series) ...[
                       _buildProgressCard(item),
                       const SizedBox(height: 24),
                     ],
@@ -253,7 +245,6 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
 
                     const SizedBox(height: 32),
 
-                    // ACTIONS
                     // ACTIONS
                     if (item.status != WatchItemStatus.completed)
                       Center(
@@ -389,7 +380,7 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
   Widget _buildProgressCard(WatchItem item) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -409,76 +400,112 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  const Text(
-                    "SAISON",
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.kTextSecondary,
-                    ),
+          // --- SEASON COLUMN (Left) ---
+          Expanded(
+            child: Column(
+              children: [
+                const Text(
+                  "SAISON",
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.kTextSecondary,
                   ),
-                  Text(
-                    "${item.currentSeason ?? 1}",
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.kTextPrimary,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "${item.currentSeason ?? 1}",
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.kTextPrimary,
                   ),
-                ],
-              ),
-              Container(width: 1, height: 40, color: AppColors.kBorder),
-              Column(
-                children: [
-                  const Text(
-                    "ÉPISODE",
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.kTextSecondary,
-                    ),
-                  ),
-                  Text(
-                    "${item.currentEpisode ?? 1}",
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.kTextPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 12),
+                _buildQuickActionButton(
+                  label: '+ Saison',
+                  onTap: controller.nextSeason,
+                  color: AppColors.kSurfaceVariant,
+                  textColor: AppColors.kTextPrimary,
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: AdaptiveButton(
-                  text: '+ Episode',
-                  onPressed: controller.incrementEpisode,
-                  backgroundColor: AppColors.kPrimary,
+
+          // DIVIDER
+          Container(
+            width: 1,
+            height: 80,
+            color: AppColors.kBorder.withValues(alpha: 0.5),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+
+          // --- EPISODE COLUMN (Right) ---
+          Expanded(
+            child: Column(
+              children: [
+                const Text(
+                  "ÉPISODE",
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.kTextSecondary,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: AdaptiveButton(
-                  text: '+ Saison',
-                  onPressed: controller.nextSeason,
-                  backgroundColor: AppColors.kSurfaceVariant,
-                  // textColor: AppColors.kTextPrimary,
+                const SizedBox(height: 4),
+                Text(
+                  "${item.currentEpisode ?? 1}",
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.kTextPrimary,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                _buildQuickActionButton(
+                  label: '+ Épisode',
+                  onTap: controller.incrementEpisode,
+                  color: AppColors.kPrimary,
+                  textColor: Colors.white,
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionButton({
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+    required Color textColor,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -519,9 +546,43 @@ class WatchItemDetailView extends GetView<WatchItemDetailController> {
               fontSize: 16,
               height: 1.5,
               fontStyle: FontStyle.italic,
+              color: AppColors.kTextPrimary, // Ensuring Text is visible
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAppBarButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? iconColor,
+    String? tooltip,
+    bool isLoading = false,
+  }) {
+    return GestureDetector(
+      onTap: isLoading ? null : onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.3),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: isLoading
+            ? const Padding(
+                padding: EdgeInsets.all(10),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : Icon(icon, color: iconColor ?? Colors.white, size: 20),
       ),
     );
   }
