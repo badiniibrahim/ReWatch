@@ -10,8 +10,7 @@ abstract class Routes {
 
     try {
       Get.find<LocaleStorageService>().debugStorage();
-    } catch (e) {
-    }
+    } catch (e) {}
 
     bool onboardingIsCompleted = false;
     try {
@@ -60,12 +59,14 @@ abstract class Routes {
   static const String watchAdd = _Paths.watchAdd;
   static const String watchEdit = _Paths.watchEdit;
   static const String watchDetail = _Paths.watchDetail;
+  static const String splash = _Paths.splash;
 }
 
 ///
 abstract class _Paths {
   _Paths._();
 
+  static const String splash = '/splash';
   static const String main = '/main';
   static const String signIn = '/sign-in';
   static const String signUp = '/sign-up';
@@ -76,5 +77,4 @@ abstract class _Paths {
   static const String watchAdd = '/watch/add';
   static const String watchEdit = '/watch/edit';
   static const String watchDetail = '/watch/detail';
-
 }

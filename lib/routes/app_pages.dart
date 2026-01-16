@@ -18,12 +18,20 @@ import '../features/watch/presentation/views/watch_item_form_view.dart';
 import '../features/watch/presentation/views/watch_item_detail_view.dart';
 import '../features/main/presentation/bindings/main_binding.dart';
 
+import '../features/splash/presentation/bindings/splash_binding.dart';
+import '../features/splash/presentation/views/splash_view.dart';
+
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
 
   static final List<GetPage> routes = [
+    GetPage(
+      name: Routes.splash,
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+    ),
     GetPage(
       name: Routes.onboarding,
       page: () => const OnboardingView(),

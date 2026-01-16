@@ -30,8 +30,8 @@ void main() async {
   // Initialisation des services (Firebase, Storage, etc.)
   await Initializer.init();
 
-  // Détermination de la route initiale
-  final initialRoute = await Routes.initial;
+  // Détermination de la route initiale (Splash Screen)
+  const initialRoute = Routes.splash;
 
   // Lancement de l'application
   runApp(App(initialRoute: initialRoute));

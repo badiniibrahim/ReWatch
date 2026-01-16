@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rewatch/features/watch/presentation/views/watch_filters_view.dart';
 import 'package:get/get.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../../core/config/app_colors.dart';
 import '../../../../core/widgets/adaptive_widgets.dart';
 import '../controllers/watch_home_controller.dart';
@@ -23,11 +24,12 @@ class WatchHomeView extends GetView<WatchHomeController> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: controller.shuffleItems,
+        onPressed: controller.navigateToAdd,
         backgroundColor: AppColors.kPrimary,
-        icon: const Icon(FluentIcons.sparkle_24_filled, color: Colors.white),
+        icon: const Icon(FluentIcons.add_24_filled, color: Colors.white),
         label: Text(
-          "Aléatoire",
+          'common_add'
+              .tr, // Assurez-vous d'avoir la traduction ou utilisez 'Ajouter'
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -59,26 +61,39 @@ class WatchHomeView extends GetView<WatchHomeController> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: IconButton(
-            icon: const Icon(
-              FluentIcons.filter_24_regular,
-              color: AppColors.kTextPrimary,
-            ),
-            onPressed: () => _showFilterModal(context),
-            tooltip: 'watch_filters'.tr,
-          ),
-        ),
-        Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: IconButton(
-            icon: const Icon(
-              FluentIcons.add_circle_24_filled,
-              color: AppColors.kPrimary,
-              size: 28,
+          child: GestureDetector(
+            onTap: controller.shuffleItems,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.kPrimary.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.kPrimary.withOpacity(0.5),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    FluentIcons.sparkle_24_filled,
+                    color: AppColors.kPrimary,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Aléatoire',
+                    style: const TextStyle(
+                      color: AppColors.kPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            onPressed: controller.navigateToAdd,
-            tooltip: 'common_add'.tr,
           ),
         ),
       ],
@@ -89,29 +104,77 @@ class WatchHomeView extends GetView<WatchHomeController> {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.kSurfaceElevated,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.kBorder.withValues(alpha: 0.5)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.kSurfaceElevated,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.kBorder.withValues(alpha: 0.5),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: AdaptiveTextField(
+                  controller: controller.searchController,
+                  placeholder: 'watch_searchPlaceholder'.tr,
+                  hintText: 'watch_searchPlaceholder'.tr,
+                  prefix: const Icon(
+                    FluentIcons.search_24_regular,
+                    color: AppColors.kTextSecondary,
+                  ),
+                  onChanged: (_) {}, // Géré par le listener du controller
+                ),
               ),
-            ],
-          ),
-          child: AdaptiveTextField(
-            controller: controller.searchController,
-            placeholder: 'watch_searchPlaceholder'.tr,
-            hintText: 'watch_searchPlaceholder'.tr,
-            prefix: const Icon(
-              FluentIcons.search_24_regular,
-              color: AppColors.kTextSecondary,
             ),
-            onChanged: (_) {}, // Géré par le listener du controller
-          ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => _showFilterModal(Get.context!),
+              child: Container(
+                height: 48, // Match approximate height of text field
+                width: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.kSurfaceElevated,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color:
+                        controller.selectedType.value != null ||
+                            controller.selectedStatus.value != null ||
+                            controller.selectedPlatform.value.isNotEmpty
+                        ? AppColors.kPrimary
+                        : AppColors.kBorder.withValues(alpha: 0.5),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  controller.selectedType.value != null ||
+                          controller.selectedStatus.value != null ||
+                          controller.selectedPlatform.value.isNotEmpty
+                      ? FluentIcons.filter_24_filled
+                      : FluentIcons.filter_24_regular,
+                  color:
+                      controller.selectedType.value != null ||
+                          controller.selectedStatus.value != null ||
+                          controller.selectedPlatform.value.isNotEmpty
+                      ? AppColors.kPrimary
+                      : AppColors.kTextPrimary,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -254,9 +317,18 @@ class WatchHomeView extends GetView<WatchHomeController> {
           ),
           delegate: SliverChildBuilderDelegate((context, index) {
             final item = controller.filteredItems[index];
-            return WatchItemCard(
-              item: item,
-              onTap: () => controller.navigateToDetail(item.id),
+            return AnimationConfiguration.staggeredGrid(
+              position: index,
+              duration: const Duration(milliseconds: 375),
+              columnCount: 2,
+              child: ScaleAnimation(
+                child: FadeInAnimation(
+                  child: WatchItemCard(
+                    item: item,
+                    onTap: () => controller.navigateToDetail(item.id),
+                  ),
+                ),
+              ),
             );
           }, childCount: controller.filteredItems.length),
         ),
