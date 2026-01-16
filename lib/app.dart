@@ -11,6 +11,22 @@ import 'core/config/app_themes.dart';
 import 'core/services/language_service.dart';
 import 'core/services/platform_service.dart';
 
+/// Wrapper pour désactiver la détection automatique de données sur iOS
+/// et éviter les soulignements jaunes sur tous les textes
+class _NoDataDetectionWrapper extends StatelessWidget {
+  final Widget child;
+
+  const _NoDataDetectionWrapper({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTextStyle(
+      style: DefaultTextStyle.of(context).style,
+      child: child,
+    );
+  }
+}
+
 class App extends StatefulWidget {
   final String initialRoute;
 
@@ -114,7 +130,7 @@ class _AppState extends State<App> {
                   data: MediaQuery.of(
                     context,
                   ).copyWith(textScaler: TextScaler.linear(1.0)),
-                  child: child!,
+                  child: _NoDataDetectionWrapper(child: child!),
                 ),
               );
             }

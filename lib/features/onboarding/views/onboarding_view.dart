@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/config/app_colors.dart';
+import '../../../../core/config/app_themes.dart';
 import '../../../../core/widgets/adaptive_widgets.dart';
 import '../controllers/onboarding_controller.dart';
 import '../widgets/page_indicator.dart';
@@ -52,7 +53,8 @@ class OnboardingView extends GetView<OnboardingController> {
                         ),
                         child: Text(
                           'onboarding_skip'.tr,
-                          style: const TextStyle(
+                          style: TextStyle(
+                            fontFamily: AppThemes.kFontFamily,
                             color: AppColors.kTextSecondary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -139,7 +141,8 @@ class OnboardingView extends GetView<OnboardingController> {
                                           controller.pages.length - 1
                                       ? 'onboarding_next'.tr
                                       : 'onboarding_start'.tr,
-                                  style: const TextStyle(
+                                  style: TextStyle(
+                                    fontFamily: AppThemes.kFontFamily,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -235,38 +238,53 @@ class OnboardingView extends GetView<OnboardingController> {
                     color: AppColors.kPrimaryContainer,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.kPrimary,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
+                  child: SelectableText.rich(
+                    TextSpan(
+                      text: subtitle,
+                      style: TextStyle(
+                        fontFamily: AppThemes.kFontFamily,
+                        fontSize: 14,
+                        color: AppColors.kPrimary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
                     ),
+                    enableInteractiveSelection: false,
+                    showCursor: false,
                   ),
                 ),
                 const SizedBox(height: 20),
                 // Title
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.kTextPrimary,
-                    height: 1.2,
+                SelectableText.rich(
+                  TextSpan(
+                    text: title,
+                    style: TextStyle(
+                      fontFamily: AppThemes.kFontFamily,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.kTextPrimary,
+                      height: 1.2,
+                    ),
                   ),
+                  textAlign: TextAlign.center,
+                  enableInteractiveSelection: false,
+                  showCursor: false,
                 ),
                 const SizedBox(height: 16),
                 // Description
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColors.kTextSecondary,
-                    height: 1.5,
+                SelectableText.rich(
+                  TextSpan(
+                    text: description,
+                    style: TextStyle(
+                      fontFamily: AppThemes.kFontFamily,
+                      fontSize: 16,
+                      color: AppColors.kTextSecondary,
+                      height: 1.5,
+                    ),
                   ),
+                  textAlign: TextAlign.center,
+                  enableInteractiveSelection: false,
+                  showCursor: false,
                 ),
               ],
             ),

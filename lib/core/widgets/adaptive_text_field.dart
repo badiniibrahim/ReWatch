@@ -106,6 +106,8 @@ class AdaptiveTextField extends StatelessWidget {
         enabled: enabled,
         maxLines: maxLines,
         textAlign: textAlign,
+        autocorrect: false, // Désactiver la correction automatique
+        enableSuggestions: false, // Désactiver les suggestions
         style:
             style ??
             TextStyle(

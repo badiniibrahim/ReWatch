@@ -7,6 +7,8 @@ library adaptive_widgets;
 export 'adaptive_button.dart';
 export 'adaptive_outlined_button.dart';
 export 'adaptive_text_field.dart';
+export 'adaptive_text.dart';
+export 'text_no_detection.dart';
 export 'adaptive_scaffold.dart';
 export 'adaptive_bottom_navigation.dart';
 export 'adaptive_dialog.dart';
